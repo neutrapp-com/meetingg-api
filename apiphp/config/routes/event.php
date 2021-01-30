@@ -7,10 +7,16 @@ $collection = new Collection();
 
 $collection->setHandler(IndexController::class, true);
 
-$collection->setPrefix('');
+$collection->setPrefix('/event');
 
 $collection
-    ->get("/", "index")
+// getters
+    ->get("/data", "data")
+// actions
+    ->post("/new", "new")
+    ->post("/move", "move")
+    ->post("/update", "update")
+    ->post("/delete", "delete")
     ;
 
 

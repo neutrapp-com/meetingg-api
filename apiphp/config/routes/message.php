@@ -7,10 +7,15 @@ $collection = new Collection();
 
 $collection->setHandler(IndexController::class, true);
 
-$collection->setPrefix('');
+$collection->setPrefix('/message');
 
 $collection
-    ->get("/", "index")
+// getters
+    ->get("/data", "data")
+// actions
+    ->post("/send", "send")
+    ->post("/update", "update")
+    ->post("/delete", "delete")
     ;
 
 
