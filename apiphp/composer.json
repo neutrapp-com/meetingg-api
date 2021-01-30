@@ -1,0 +1,31 @@
+{
+    "name": "neutrapp-com/meetingg",
+    "authors": [
+        {
+            "name": "Yassine Rais",
+            "email": "yassine@rais.me",
+            "homepage": "https://rais.me",
+            "role": "Developer"
+        }
+    ],
+    "config": {
+        "process-timeout": 0
+    },
+    "require": {
+        "vlucas/phpdotenv": "^5.2"
+    },
+    "require-dev": {
+        "phpunit/phpunit": "^8.0",
+        "phalcon/incubator-test": "v1.0.0-alpha.1",
+        "spatie/phpunit-watcher": "^1.23"
+    },
+    "autoload-dev": {
+        "psr-4": {
+            "Meetingg\\": "./app",
+            "Tests\\": "./tests"
+        }
+    },
+    "scripts": {
+        "test": "vendor/bin/phpunit-watcher watch --colors --coverage-text tests/"
+    }
+}

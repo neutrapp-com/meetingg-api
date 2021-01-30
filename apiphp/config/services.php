@@ -1,0 +1,97 @@
+<?php
+declare(strict_types=1);
+
+use Phalcon\Cache;
+use Phalcon\Url as UrlResolver;
+use Phalcon\Mvc\View\Simple as View;
+use Phalcon\Storage\SerializerFactory;
+use Phalcon\Storage\Serializer\Json;
+
+use Meetingg\Services\CompanyResolver;
+
+/**
+ * Shared configuration service
+ */
+$di->setShared('config', function () {
+    return include BASE_PATH . "/config/config.php";
+});
+
+/**
+ * Sets the view component
+ */
+$di->setShared('view', function () {
+    $config = $this->getConfig();
+
+    $view = new View();
+    $view->setViewsDir($config->application->viewsDir);
+    return $view;
+});
+
+/**
+ * The URL component is used to generate all kind of urls in the application
+ */
+$di->setShared('url', function () {
+    $config = $this->getConfig();
+
+    $url = new UrlResolver();
+    $url->setBaseUri($config->application->baseUri);
+    return $url;
+});
+
+/**
+ * Database connection is created based in the parameters defined in the configuration file
+ */
+$di->setShared('db', function () {
+    $config = $this->getConfig();
+
+    $class = 'Phalcon\Db\Adapter\Pdo\\' . $config->database->adapter;
+
+    $params = $config->database->toArray();
+
+    if (strtolower($config->database->adapter) == 'postgresql') {
+        unset($params['charset']);
+
+        foreach ($params as $key=>$val) {
+            if (!in_array($key, ['host','port','username','password','dbname','schema'])) {
+                unset($params[$key]);
+            }
+        }
+    }
+
+    $connection = new $class($params);
+
+    return $connection;
+});
+
+/**
+ * Models Caching
+ */
+
+$di->setShared(
+    'modelsCache',
+    function () {
+        $config = $this->getConfig();
+        $cacheAdapter = $config->cache->adapter;
+
+        $jsonSerializer = new Json();
+
+        if (!$config->cache->options[$cacheAdapter]) {
+            throw new Exception("Cache Adapter $cacheAdapter Options null");
+        }
+            
+        
+        $cacheOptions = [
+            'lifetime'          => 7200,
+            'serializer'        => $jsonSerializer
+        ];
+        
+        $cacheOptions += $config->cache->options[$cacheAdapter]->toArray() ?? [] ;
+
+        $serializerFactory = new SerializerFactory();
+        
+        $cacheAdapter = "\Phalcon\Cache\Adapter\\{$cacheAdapter}";
+        $adapter = new $cacheAdapter($serializerFactory, $cacheOptions);
+        
+        return new Cache($adapter);
+    }
+);

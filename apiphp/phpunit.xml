@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<phpunit backupGlobals="false"
+         backupStaticAttributes="false"
+         verbose="true"
+         colors="true"
+         convertErrorsToExceptions="true"
+         convertNoticesToExceptions="true"
+         convertWarningsToExceptions="true"
+         stopOnFailure="false">
+
+    <testsuite name="Tests">
+        <directory>./tests/</directory>
+    </testsuite>
+    <logging>
+        <log type="coverage-clover" target="./public/build/logs/clover.xml"/>
+        <log type="coverage-html" target="./public/report" lowUpperBound="35"
+            highLowerBound="70"/>
+    </logging>
+    <filter>
+        <whitelist >
+            <directory suffix=".php">./app/</directory>
+        </whitelist>
+    </filter>
+</phpunit>
