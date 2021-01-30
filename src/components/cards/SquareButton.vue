@@ -1,5 +1,5 @@
 <template>
-    <div class="squarebutton" v-bind:style="{ background: color }">
+    <a class="squarebutton" v-bind:style="{ background: color }">
         <div class="icon">
             <ion-icon v-bind:name="icon"></ion-icon>
         </div>
@@ -7,7 +7,7 @@
             <h3>{{ title }}</h3>
             <p>{{ description }}</p>
         </div>
-    </div>
+    </a>
 </template>
 
 
@@ -40,8 +40,11 @@ export default {
 .squarebutton{
     fill: white;
 
-    @apply relative bg-blue-500  p-8 rounded-2xl w-44 h-44 text-white m-2;
+    @apply relative bg-blue-500  p-8 rounded-2xl w-44 h-44 text-white;
 
+    &:hover{
+        @apply cursor-pointer transform  scale-105 shadow-2xl ;
+    }
     .info{
         @apply absolute bottom-3;
         

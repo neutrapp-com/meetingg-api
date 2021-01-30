@@ -1,15 +1,19 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
 @font-face {
-    font-family: 'Gilroy';
-    src: url('../fonts/Gilroy-Light.otf');
-    font-weight: normal;
+  font-family: "Gilroy";
+  src: url("../fonts/Gilroy-Light.otf");
+  font-weight: normal;
 }
 @font-face {
-    font-family: 'Gilroy';
-    src: url('../fonts/Gilroy-ExtraBold.otf');
-    font-weight: bold;
+  font-family: "Gilroy";
+  src: url("../fonts/Gilroy-ExtraBold.otf");
+  font-weight: bold;
 }
 
-
-body,html{
-    font-family: 'Gilroy', Arial, Helvetica, sans-serif;
+body,
+html {
+  font-family: "Gilroy", Arial, Helvetica, sans-serif;
 }
