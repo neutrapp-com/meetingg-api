@@ -15,6 +15,13 @@ class IndexController extends BaseController
      */
     public function index()
     {
-        return [];
+        $routes = array_map(function ($item) {
+            return $item->getPattern();
+        }, $this->router->getRoutes());
+        sort($routes);
+        
+        return [
+            "routes" =>  $routes
+        ];
     }
 }

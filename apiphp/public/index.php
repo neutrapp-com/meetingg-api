@@ -1,7 +1,7 @@
 <?php
 declare(strict_types=1);
 
-use Exception;
+use Meetingg\Exception\PublicException;
 use Phalcon\Mvc\Micro;
 use Phalcon\Di\FactoryDefault;
 
@@ -40,7 +40,16 @@ $app = new Micro($di);
  */
 include BASE_PATH . '/config/app.php';
 
+
+try {
+    
 /**
  * Handle the request
  */
-$app->handle($_SERVER['REQUEST_URI']);
+    $app->handle($_SERVER['REQUEST_URI']);
+} catch (\Exception $e) {
+    if (!($e instanceof PublicException)) {
+        // log errors
+        var_dump($e->getMessage());
+    }
+}
