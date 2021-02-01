@@ -1,7 +1,7 @@
 <?php
 
 use Phalcon\Mvc\Micro\Collection;
-use Meetingg\Controllers\User\ProfileController;
+use Meetingg\Controllers\ProfileController;
 
 $collection = new Collection();
 
@@ -11,6 +11,7 @@ $collection->setPrefix('/profile');
 
 $collection
 // getters
+        ->get("/", "index")
         ->get("/data", "data")
 // actions
         ->post("/avatar", "avatar")

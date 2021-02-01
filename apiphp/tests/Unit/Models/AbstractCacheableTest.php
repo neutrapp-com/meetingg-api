@@ -4,8 +4,8 @@ declare(strict_types=1);
 
 namespace Tests\Unit\Models;
 
-use Meetingg\Models\AbstractCacheable;
 use Tests\Unit\AbstractUnitTest;
+use Meetingg\Models\AbstractCacheable;
 
 class AbstractCacheableTest extends AbstractUnitTest
 {

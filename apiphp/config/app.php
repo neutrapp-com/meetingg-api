@@ -1,12 +1,12 @@
 <?php
-
 /**
  * Local variables
  * @var \Phalcon\Mvc\Micro $app
  */
 
-use Meetingg\Controllers\IndexController;
+use Meetingg\Exception\PublicException;
 use Meetingg\Exception\Error\NotFound404;
+use Meetingg\Controllers\IndexController;
 
 /**
  * Add your routes here
@@ -37,12 +37,17 @@ $app->after(function () use ($app) {
 
 $app->error(
     function ($e) use ($app) {
-        http_response_code($e->getCode() ?: 401);
+        $codeError = $e->getCode() ?: 401;
         $app->response->setContentType('application/json');
-        // $app->response->setJsonContent([
-        //     'code'    => $e->getCode(),
-        //     'status'  => 'error',
-        //     'message' => $e->getMessage(),
-        // ])->send();
+        $app->response->setJsonContent($_ENV['APP_MODE'] === 'production' && !is_subclass_of($e, PublicException::class, true) ? [
+            'code'    => $codeError,
+            'status'  => 'error',
+            'message' => 'Something went wrong please contact support',
+        ]
+        :  [
+            'code'    => $codeError,
+            'status'  => 'error',
+            'message' => $e->getMessage(),
+        ])->send();
     }
 );

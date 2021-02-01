@@ -7,8 +7,6 @@ use Phalcon\Mvc\View\Simple as View;
 use Phalcon\Storage\SerializerFactory;
 use Phalcon\Storage\Serializer\Json;
 
-use Meetingg\Services\CompanyResolver;
-
 /**
  * Shared configuration service
  */
