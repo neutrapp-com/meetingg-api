@@ -11,17 +11,16 @@ $collection->setPrefix('/meeting');
 
 $collection
 // getters
-    ->get("/", "data")
-    ->get("/data", "data")
+    ->get("/{id}", "data")
     ->get("/upcoming", "upcoming")
     ->get("/recorded", "recorded")
 // actions
     ->post("/new", "new")
-    ->post("/end", "end")
-    ->post("/join", "join")
-    ->post("/start", "start")
-    ->post("/leave", "leave")
-    ->post("/invite", "invite")
+    ->post("/{id}/end", "end")
+    ->post("/{id}/join", "join")
+    ->post("/{id}/start", "start")
+    ->post("/{id}/leave", "leave")
+    ->post("/{id}/invite", "invite")
     ;
 
 

@@ -2,11 +2,11 @@
 
 declare(strict_types=1);
 
-namespace Tests\Controllers\Client;
+namespace Tests\Controllers\Auth;
 
 use Tests\Unit\AbstractUnitTest;
 use Meetingg\Controllers\BaseController;
-use Meetingg\Controllers\Client\AuthController;
+use Meetingg\Controllers\Auth\AuthController;
 
 class AuthControllerTest extends AbstractUnitTest
 {
@@ -23,8 +23,7 @@ class AuthControllerTest extends AbstractUnitTest
 
         $this->assertSame(
             $instanceController->index(),
-            array(
-             )
+            array()
         );
     }
 }
