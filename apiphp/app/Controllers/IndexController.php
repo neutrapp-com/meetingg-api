@@ -19,7 +19,7 @@ class IndexController extends BaseController
             return $item->getPattern();
         }, $this->router->getRoutes());
         sort($routes);
-        
+
         return [
             "routes" =>  $routes
         ];

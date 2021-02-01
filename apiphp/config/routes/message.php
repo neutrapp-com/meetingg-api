@@ -11,11 +11,11 @@ $collection->setPrefix('/message');
 
 $collection
 // getters
-    ->get("/data", "data")
+    ->get("/{discussion}", "data")
 // actions
-    ->post("/send", "send")
-    ->post("/update", "update")
-    ->post("/delete", "delete")
+    ->post("/{discussion}/send", "send")
+    ->post("/{id}/update", "update")
+    ->post("/{id}/delete", "delete")
     ;
 
 
