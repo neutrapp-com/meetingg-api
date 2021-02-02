@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace Tests\Controllers;
+namespace Tests\Unit\Controllers;
 
 use Tests\Unit\AbstractUnitTest;
 use Meetingg\Controllers\BaseController;
@@ -21,10 +21,8 @@ class IndexControllerTest extends AbstractUnitTest
     {
         $instanceController = new IndexController();
 
-        $this->assertSame(
-            $instanceController->index(),
-            array(
-             )
-        );
+        $index = $instanceController->index();
+        $this->assertArrayHasKey("routes", $index);
+        $this->assertIsArray($index["routes"]);
     }
 }
