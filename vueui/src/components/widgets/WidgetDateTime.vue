@@ -1,14 +1,18 @@
 <template>
     <div class="widget">
         <h2>12:02</h2>
-        <h6>Sunday, Mars 2020</h6>
+        <h6>{{ updateDateWidget }}</h6>
     </div>
 </template>
 
 <script>
 export default {
     name : 'WidgetDateTime',
-    
+    computed : {
+        updateDateWidget(){
+            return (new Date()).toString();
+        }
+    }
 }
 </script>
 
