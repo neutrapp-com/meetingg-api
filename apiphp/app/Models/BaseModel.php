@@ -17,25 +17,29 @@ class BaseModel extends Model implements SharedConstInterface
      */
     public function beforeCreate() : void
     {
-        if (property_exists(self::class, 'created_at')) {
-            $this->created_at = microtime();
+        $selfClass = get_class($this);
+
+        if (property_exists($selfClass, 'created_at')) {
+            $this->created_at = self::getTime();
         }
-        if (property_exists(self::class, 'created_ip')) {
+        if (property_exists($selfClass, 'created_ip')) {
             $this->created_ip = $this->client_ip;
         }
     }
-
+    
     /**
      * Before Save , Save microtime into database
-     *
+     *r
      * @return void
      */
     public function beforeSave() : void
     {
-        if (property_exists(self::class, 'updated_at')) {
-            $this->updated_at = microtime();
+        $selfClass = get_class($this);
+
+        if (property_exists($selfClass, 'updated_at')) {
+            $this->updated_at = self::getTime();
         }
-        if (property_exists(self::class, 'updated_ip')) {
+        if (property_exists($selfClass, 'updated_ip')) {
             $this->updated_ip = $this->client_ip;
         }
     }
@@ -47,10 +51,12 @@ class BaseModel extends Model implements SharedConstInterface
      */
     public function beforeDelete() : void
     {
-        if (property_exists(self::class, 'deleted_at')) {
-            $this->deleted_at = microtime();
+        $selfClass = get_class($this);
+
+        if (property_exists($selfClass, 'deleted_at')) {
+            $this->deleted_at = self::getTime();
         }
-        if (property_exists(self::class, 'deleted_ip')) {
+        if (property_exists($selfClass, 'deleted_ip')) {
             $this->deleted_ip = $this->client_ip;
         }
     }
@@ -65,5 +71,23 @@ class BaseModel extends Model implements SharedConstInterface
     {
         $this->client_ip = $clientIp;
         return $this;
+    }
+
+    /**
+     * Get Client Ip
+     *
+     * @return string
+     */
+    public function getIp() : string 
+    {
+        return $this->client_ip;
+    }
+
+    /**
+     * Get Time in seconds
+     */
+    public static function getTime() : int 
+    {
+        return microtime(true);
     }
 }

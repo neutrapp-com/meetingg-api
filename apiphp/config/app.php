@@ -4,9 +4,19 @@
  * @var \Phalcon\Mvc\Micro $app
  */
 
+use Phalcon\Events\Manager;
+
 use Meetingg\Exception\PublicException;
 use Meetingg\Exception\Error\NotFound404;
-use Meetingg\Controllers\IndexController;
+use Meetingg\Middleware\AuthMiddleware;
+
+
+$eventsManager = new Manager();
+$eventsManager->attach('micro', new AuthMiddleware());
+
+$app->before(new AuthMiddleware());
+$app->after(new AuthMiddleware());
+$app->setEventsManager($eventsManager);
 
 /**
  * Add your routes here
@@ -23,6 +33,8 @@ foreach (glob(BASE_PATH . '/config/routes/{*,*/,*/*/}*.php', GLOB_BRACE) as $fil
 $app->notFound(function () use ($app) {
     throw new NotFound404();
 });
+
+
 
 /**
  * Set Json Content Type
@@ -58,7 +70,7 @@ $app->error(
     function ($e) use ($app) {
         $codeError = $e->getCode() ?: 401;
         $app->response->setContentType('application/json');
-        $app->response->setJsonContent($_ENV['APP_MODE'] === 'production' && !is_subclass_of($e, PublicException::class, true) ? [
+        $app->response->setJsonContent($_ENV['APP_MODE'] === 'production' && (!is_subclass_of($e, PublicException::class, true) && get_class($e) !== PublicException::class) ? [
             'code'    => $codeError,
             'status'  => 'error',
             'message' => 'Something went wrong please contact support',
