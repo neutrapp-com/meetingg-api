@@ -21,10 +21,8 @@ class IndexControllerTest extends AbstractUnitTest
     {
         $instanceController = new IndexController();
 
-        $this->assertSame(
-            $instanceController->index(),
-            array(
-             )
-        );
+        $index = $instanceController->index();
+        $this->assertArrayHasKey("routes", $index);
+        $this->assertIsArray($index["routes"]);
     }
 }

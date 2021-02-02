@@ -68,13 +68,15 @@ abstract class AbstractCacheable extends BaseModel
     protected static function checkCacheParameters($parameters = null) : array
     {
         if (null !== $parameters) {
-            if (true !== is_array($parameters)) {
+            if (is_array($parameters) !== true) {
                 $parameters = [$parameters];
             }
 
-            if (true !== isset($parameters['cache'])) {
+            if (isset($parameters['cache']) !== true) {
+                $key = self::generateCacheKey($parameters);
+                
                 $parameters['cache'] = [
-                    'key'      => self::generateCacheKey($parameters),
+                    'key'      => $key,
                     'lifetime' => 300,
                 ];
             }
