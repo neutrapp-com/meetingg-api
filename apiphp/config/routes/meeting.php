@@ -24,5 +24,4 @@ $collection
     ;
 
 
-
 return $collection;

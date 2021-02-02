@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Tests\Unit\Models;
 
+use Behat\Gherkin\Exception\CacheException;
 use Tests\Unit\AbstractUnitTest;
 use Meetingg\Models\AbstractCacheable;
 
@@ -17,7 +18,7 @@ class AbstractCacheableTest extends AbstractUnitTest
         // Create a new instance from the Abstract Class
         $this->abstractClass = new MockAbstractCacheable();
     }
-    
+
     /**
      * @dataProvider cacheKeyExamplesProvider
      *

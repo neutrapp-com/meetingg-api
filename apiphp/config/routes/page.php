@@ -16,5 +16,4 @@ $collection
     ;
 
 
-
 return $collection;

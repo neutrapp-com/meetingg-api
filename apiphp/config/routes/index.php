@@ -10,9 +10,8 @@ $collection->setHandler(IndexController::class, true);
 $collection->setPrefix('');
 
 $collection
-    ->get("/", "index")
+    ->get("/", "index" , "index")
     ;
-
 
 
 return $collection;

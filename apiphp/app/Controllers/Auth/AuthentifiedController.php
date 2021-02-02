@@ -15,11 +15,10 @@ class AuthentifiedController extends BaseController
     public array $publicActions = [];
 
     public function onConstruct()
-    {
-        print_r($this->router->getActionName());
-
+    { 
         if (!$this->isLogged) {
             throw new PublicException("You must be authentified to access to this resource");
         }
     }
+     
 }

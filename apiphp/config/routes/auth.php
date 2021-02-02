@@ -16,4 +16,6 @@ $collection
         ->post("/register", "register")
         ->post("/forgetpassword", "forgetpassword");
 
+
+
 return $collection;
