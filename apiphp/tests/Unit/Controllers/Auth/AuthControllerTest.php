@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace Tests\Controllers\Auth;
+namespace Tests\Unit\Controllers\Auth;
 
 use Tests\Unit\AbstractUnitTest;
 use Meetingg\Controllers\BaseController;

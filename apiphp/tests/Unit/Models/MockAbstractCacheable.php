@@ -11,14 +11,14 @@ class MockAbstractCacheable extends AbstractCacheable
 
     public static function generateCacheKey(array $parameters): string
     {
-        return $this->generateCacheKey_Obj($parameters);
+        return self::generateCacheKey_Obj($parameters);
     }
     public static function checkCacheParameters($parameters = null): array
     {
         return parent::checkCacheParameters($parameters);
     }
 
-    public function generateCacheKey_Obj()
+    public function generateCacheKey_Obj($parameters, $mock = false)
     {
         return parent::generateCacheKey($parameters);
     }
