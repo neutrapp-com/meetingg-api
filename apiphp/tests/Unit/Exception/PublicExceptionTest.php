@@ -26,4 +26,19 @@ class PublicExceptionTest extends AbstractUnitTest
         $this->expectException(PublicException::class);
         throw $exception;
     }
+
+
+    public function testSettersAndGetters() : void
+    {
+        $message = "Simple message !";
+        $headers = ['Content-Type'=>'application/json'];
+        $data = ['user'=>100 , 'email'=>'test@gmail.com'];
+
+        $exception = new PublicException($message, 200);
+        $exception->setHeaders($headers);
+        $exception->setData($data);
+        $this->assertSame($exception->getMessage(), $message);
+        $this->assertSame($exception->getHeaders(), $headers);
+        $this->assertSame($exception->getData(), $data);
+    }
 }
