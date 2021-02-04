@@ -66,9 +66,9 @@ $config =  new Config([
     'throttler' => [
         'enable'=> true,
         'cacheSercice' => 'cache',
-        'bucket_size'  => 20,
-        'refill_time'  => 60, // 1m
-        'refill_amount'  => 10,
+        'bucket_size'  => 5, // the number of allowed hits in the period of time of reference
+        'refill_time'  => 600, // the amount of time after that the counter will completely or partially reset (1m)
+        'refill_amount'  => 10, // the number of hits to be reset every time the refill_time passes
     ]
 ]);
 

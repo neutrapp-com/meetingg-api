@@ -99,7 +99,7 @@ class CacheThrottler implements ThrottlerInterface
             $bucket['last_update'] + $refillCount * $this->config['refill_time']
         );
 
-        // Update cache
+        // Update cache && Expiry time
         $this->cache->set(
             $key,
             [
@@ -109,8 +109,6 @@ class CacheThrottler implements ThrottlerInterface
             $this->getNewExpiryTime()
         );
 
-        // Update Expiry time
-        ;
 
         return new RateLimit(
             (int)round(($this->config['bucket_size']) - $newValue) / $numTokens,
@@ -130,7 +128,11 @@ class CacheThrottler implements ThrottlerInterface
      */
     protected function retrieveBucket(string $key): array
     {
-        return array_merge($this->cache->get($key) ?: [], ['value' => $this->config['bucket_size'] , 'last_update' => time()]);
+        $bucket =  array_merge(
+            ['value' => $this->config['bucket_size'] , 'last_update' => time()],
+            $this->cache->get($key) ?: []
+        );
+        return $bucket;
     }
 
     /**

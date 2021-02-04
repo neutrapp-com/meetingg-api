@@ -18,7 +18,7 @@ use Meetingg\Middleware\RateLimitMiddleware;
  */
 $eventsManager = new Manager();
 $eventsManager->attach('micro', new RateLimitMiddleware());
-$eventsManager->attach('micro', new AuthMiddleware());
+// $eventsManager->attach('micro', new AuthMiddleware());
 $app->setEventsManager($eventsManager);
 
 

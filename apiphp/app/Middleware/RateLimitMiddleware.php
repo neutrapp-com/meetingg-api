@@ -16,7 +16,8 @@ class RateLimitMiddleware implements MiddlewareInterface
         if ($this->isLimited($app)) {
             throw new PublicException("You are being rate limited", StatusCodes::HTTP_TOO_MANY_REQUESTS);
         }
-        return false;
+
+        return true;
     }
 
     private function isLimited(Micro $app) : bool
@@ -24,7 +25,10 @@ class RateLimitMiddleware implements MiddlewareInterface
         $throttler = $app->getService('throttler');
         $rateLimit = $throttler->consume($app->request->getClientAddress());
 
-        return $rateLimit->isLimited();
+        $isLimited=  $rateLimit->isLimited();
+        print_r($rateLimit);
+
+        return $isLimited;
     }
 
     public function call(Micro $app)
