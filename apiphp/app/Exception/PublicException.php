@@ -18,7 +18,9 @@ class PublicException extends Exception
     {
         $this->setHeaders($headers);
         $this->setData($data);
-        parent::__construct($message, $code, $previous);
+        if ($message != null) {
+            parent::__construct($message, $code, $previous);
+        }
     }
 
     /**
