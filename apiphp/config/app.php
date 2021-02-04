@@ -83,18 +83,23 @@ $app->error(
     function ($e) use ($app) {
         $codeError = $e->getCode() ?: 401;
         $app->response->setContentType('application/json');
-        $app->response->setJsonContent($_ENV['APP_ENV'] === 'production' && (!is_subclass_of($e, PublicException::class, true) && get_class($e) !== PublicException::class) ? [
-            'code'    => $codeError,
-            'status'  => 'error',
-            'message' => 'Something went wrong please contact support',
-        ]
-        :  [
-            'code'    => $codeError,
-            'status'  => 'error',
-            'message' => $e->getMessage(),
-        ]);
+        $app->response->setJsonContent(
+            array_merge(
+                $_ENV['APP_ENV'] === 'production' && (!is_subclass_of($e, PublicException::class, true) && get_class($e) !== PublicException::class) ? [
+                    'code'    => $codeError,
+                    'status'  => 'error',
+                    'message' => 'Something went wrong please contact support',
+                ]
+                :  [
+                    'code'    => $codeError,
+                    'status'  => 'error',
+                    'message' => $e->getMessage(),
+                ],
+                (property_exists(get_class($e), 'data') ? $e->getData() : [])
+            )
+        );
         /**
-         * Aditions Headers
+         * Aditions Exception Headers
          */
         if (property_exists(get_class($e), 'headers')) {
             foreach ($e->getHeaders() as $hname => $hvalue) {

@@ -16,11 +16,20 @@ class RateLimitMiddleware implements MiddlewareInterface
 
     public function beforeExecuteRoute(Event $event, Micro $app)
     {
-        if ($this->isLimited($app)) {
-            throw new PublicException("You are being rate limited", StatusCodes::HTTP_TOO_MANY_REQUESTS, [
-                "X-RateLimit-Limit" => $this->rateLimit->getLimit(),
-                "X-RateLimit-Remaining" => $this->rateLimit->getRemaining(),
-            ]);
+        $isLimited = $this->isLimited($app);
+
+        if ($isLimited) {
+            throw new PublicException(
+                "You are being rate limited",
+                StatusCodes::HTTP_TOO_MANY_REQUESTS,
+                [
+                    "X-RateLimit-Limit" => $this->rateLimit->getLimit(),
+                    "X-RateLimit-Remaining" => $this->rateLimit->getRemaining(),
+                ],
+                [
+                    'retry_after' => $this->rateLimit->getRemainingTime()
+                ]
+            );
         }
 
         return true;

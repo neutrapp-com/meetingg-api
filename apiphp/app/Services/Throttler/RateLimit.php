@@ -49,7 +49,8 @@ class RateLimit
         int $hitsPerPeriod,
         bool $limited,
         bool $warning,
-        int $limit = 0
+        int $limit = 0,
+        float $warningLimit = 0
     ) {
         $this->hits = $hits;
 
@@ -64,6 +65,8 @@ class RateLimit
         $this->warning = $warning;
 
         $this->limit = $limit;
+
+        $this->warningLimit = $warningLimit;
     }
 
     /**
@@ -135,5 +138,15 @@ class RateLimit
     public function getLimit() : int
     {
         return $this->limit;
+    }
+    
+    /**
+     * Get remaining waiting time
+     *
+     * @return float
+     */
+    public function getRemainingTime() : float
+    {
+        return floatval($this->isLimited() ? $this->warningLimit : 0);
     }
 }

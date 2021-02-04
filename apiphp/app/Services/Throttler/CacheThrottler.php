@@ -105,7 +105,6 @@ class CacheThrottler implements ThrottlerInterface
             $this->getNewExpiryTime()
         );
 
-
         return new RateLimit(
             (int)round(($this->config['bucket_size']) - $newValue) / $numTokens,
             max(0, (int)round(($newValue / $numTokens))),
@@ -113,7 +112,8 @@ class CacheThrottler implements ThrottlerInterface
             (int)ceil($this->config['bucket_size'] / $numTokens),
             $this->isLimitExceeded(),
             $this->isLimitWarning(),
-            $this->config['bucket_size'] ?? 0
+            $this->config['bucket_size'] ?? 0,
+            ($newLastUpdate + ($this->config['refill_time']) * (-$newValue)) - time()
         );
     }
 
