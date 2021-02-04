@@ -11,6 +11,7 @@ use Lcobucci\JWT\Signer\Key\InMemory;
 
 use Phalcon\Mvc\Micro;
 use Phalcon\Di\FactoryDefault;
+use Phalcon\Events\Event;
 
 use Tests\Unit\AbstractUnitTest;
 use Meetingg\Middleware\AuthMiddleware;
@@ -54,7 +55,11 @@ class AuthMiddlewareTest extends AbstractUnitTest
     
     public function testBeforeExecuteRoute() : void
     {
-        $this->assertSame(true, !!true);
+        // extract($this->newMicroApp());
+        // $instance = new AuthMiddleware();
+
+        // $event = new Event("type", new \stdClass());
+        // $this->assertSame($instance->BeforeExecuteRoute($event, $app));
     }
 
     /**
@@ -64,8 +69,7 @@ class AuthMiddlewareTest extends AbstractUnitTest
     {
         $token = 'Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIxMjM0NTY3ODkwIiwibmFtZSI6IkpvaG4gRG9lIiwiaWF0IjoxNTE2MjM5MDIyfQ.SflKxwRJSMeKKF2QT4fwpMeJf36POk6yJV_adQssw5c';
         
-        $di = new FactoryDefault();
-        $app = new Micro($di);
+        extract($this->newMicroApp());
 
         $instance = new AuthMiddleware();
         $class = new ReflectionClass(AuthMiddleware::class);
@@ -87,6 +91,13 @@ class AuthMiddlewareTest extends AbstractUnitTest
         $this->assertFalse($method->invoke($instance, $app));
     }
 
+    private function newMicroApp() : array
+    {
+        $di = new FactoryDefault();
+        $app = new Micro($di);
+
+        return ['di' => $di , 'app' => $app];
+    }
 
     private function initConfigJWT($di) : FactoryDefault
     {
