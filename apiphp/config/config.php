@@ -15,6 +15,8 @@ require_once(dirname(__DIR__) . '/vendor/autoload.php');
 (Dotenv::createImmutable(dirname(__DIR__)))->load();
 
 $config =  new Config([
+    'mode' => $_ENV['APP_ENV'] ?? 'production',
+    
     'database' => [
         'adapter'    => $_ENV['DB_ADAPTER'] ?? 'Mysql',
         'host'       => $_ENV['DB_HOST'] ?? 'localhost',
@@ -52,6 +54,13 @@ $config =  new Config([
         'migrationsDir'  => BASE_PATH . '/resources/migrations/',
         'viewsDir'       => BASE_PATH . '/resources/views/',
         'baseUri'        => '/',
+    ],
+
+    'jwt' => [
+        'url'  =>
+        (((!empty($_SERVER['HTTPS']) && $_SERVER['HTTPS'] != 'off') || $_SERVER['SERVER_PORT'] == 443) ? "https://" : "http://")
+        . $_SERVER['HTTP_HOST'] ,
+        'timezone' => 'Europe/Paris'
     ]
 ]);
 
