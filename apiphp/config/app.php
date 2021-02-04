@@ -8,24 +8,29 @@ use Phalcon\Events\Manager;
 
 use Meetingg\Exception\PublicException;
 use Meetingg\Exception\Error\NotFound404;
+use Meetingg\Http\StatusCodes;
 use Meetingg\Middleware\AuthMiddleware;
+use Meetingg\Middleware\RateLimitMiddleware;
 
-
+/**
+ * Before Execute
+ * - Throttler
+ */
 $eventsManager = new Manager();
+// Rate Limiting
+$eventsManager->attach('micro', new RateLimitMiddleware());
+// Auth Middleware
 $eventsManager->attach('micro', new AuthMiddleware());
 
-$app->before(new AuthMiddleware());
-$app->after(new AuthMiddleware());
 $app->setEventsManager($eventsManager);
+
 
 /**
  * Add your routes here
  */
-
 foreach (glob(BASE_PATH . '/config/routes/{*,*/,*/*/}*.php', GLOB_BRACE) as $file) {
     $app->mount(require $file);
 }
-
 
 /**
  * Not found handler
@@ -35,14 +40,17 @@ $app->notFound(function () use ($app) {
 });
 
 
-
 /**
- * Set Json Content Type
+ * After Execute :
+ * - Dynamic Json Content Type
  */
 $app->after(function () use ($app) {
     $content = $app->getReturnedValue();
     $content = is_array($content) || is_object($content) ? $content : ['data' => $content];
-    
+
+    /**
+     * Dynamic Response Content & Type
+     */
     $app->response->setContentType('application/json');
     $app->response->setJsonContent(array_merge_recursive(
         [
@@ -50,6 +58,11 @@ $app->after(function () use ($app) {
     ],
         $content
     ));
+
+    
+    /**
+     * End & Send Response
+     */
     $app->response->send();
 });
 
@@ -70,15 +83,36 @@ $app->error(
     function ($e) use ($app) {
         $codeError = $e->getCode() ?: 401;
         $app->response->setContentType('application/json');
-        $app->response->setJsonContent($_ENV['APP_MODE'] === 'production' && (!is_subclass_of($e, PublicException::class, true) && get_class($e) !== PublicException::class) ? [
-            'code'    => $codeError,
-            'status'  => 'error',
-            'message' => 'Something went wrong please contact support',
-        ]
-        :  [
-            'code'    => $codeError,
-            'status'  => 'error',
-            'message' => $e->getMessage(),
-        ])->send();
+        $app->response->setJsonContent(
+            array_merge(
+                $_ENV['APP_ENV'] === 'production' && (!is_subclass_of($e, PublicException::class, true) && get_class($e) !== PublicException::class) ? [
+                    'code'    => $codeError,
+                    'status'  => 'error',
+                    'message' => 'Something went wrong please contact support',
+                ]
+                :  [
+                    'code'    => $codeError,
+                    'status'  => 'error',
+                    'message' => $e->getMessage(),
+                ],
+                (property_exists(get_class($e), 'data') ? $e->getData() : [])
+            )
+        );
+        /**
+         * Aditions Exception Headers
+         */
+        if (property_exists(get_class($e), 'headers')) {
+            foreach ($e->getHeaders() as $hname => $hvalue) {
+                $app->response->setHeader($hname, $hvalue);
+            }
+        }
+        
+        /**
+         * Dynamic response messages
+         */
+        $statusCode = $app->response->getStatusCode() ?: $codeError;
+        $app->response->setStatusCode($statusCode, StatusCodes::getMessageForCode($statusCode));
+    
+        $app->response->send();
     }
 );

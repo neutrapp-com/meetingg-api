@@ -15,6 +15,8 @@ require_once(dirname(__DIR__) . '/vendor/autoload.php');
 (Dotenv::createImmutable(dirname(__DIR__)))->load();
 
 $config =  new Config([
+    'mode' => $_ENV['APP_ENV'] ?? 'production',
+    
     'database' => [
         'adapter'    => $_ENV['DB_ADAPTER'] ?? 'Mysql',
         'host'       => $_ENV['DB_HOST'] ?? 'localhost',
@@ -26,7 +28,7 @@ $config =  new Config([
     ],
 
     'cache'=>[
-        'adapter'=> $_ENV['CACHE_ADAPTER'] ?? 'Php',
+        'adapter'=> $_ENV['CACHE_ADAPTER'] ?? 'Stream',
         'options'=>[
             'Redis'=>[
                 'defaultSerializer' => 'Php',
@@ -52,6 +54,21 @@ $config =  new Config([
         'migrationsDir'  => BASE_PATH . '/resources/migrations/',
         'viewsDir'       => BASE_PATH . '/resources/views/',
         'baseUri'        => '/',
+    ],
+
+    'jwt' => [
+        'url'  =>
+        (((!empty($_SERVER['HTTPS']) && $_SERVER['HTTPS'] != 'off') || $_SERVER['SERVER_PORT'] == 443) ? "https://" : "http://")
+        . $_SERVER['HTTP_HOST'] ,
+        'timezone' => 'Europe/Paris'
+    ],
+
+    'throttler' => [
+        'enable'=> true,
+        'cacheSercice' => 'cache',
+        'bucket_size'  => intval($_ENV['RATE_LIMITING_BUCKET_SIZE'] ?? 30), // the number of allowed hits in the period of time of reference
+        'refill_time'  => intval($_ENV['RATE_LIMITING_REFILL_TIME'] ?? 5), // the amount of time after that the counter will completely or partially reset (1m)
+        'refill_amount'  => intval($_ENV['RATE_LIMITING_REFILL_AMOUNT'] ?? 10), // the number of hits to be reset every time the refill_time passes
     ]
 ]);
 

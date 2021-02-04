@@ -50,6 +50,6 @@ try {
 } catch (\Exception $e) {
     if (!($e instanceof PublicException)) {
         // log errors
-        var_dump($e->getMessage());
+        print_r($e);
     }
 }

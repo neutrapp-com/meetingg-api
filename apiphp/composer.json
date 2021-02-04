@@ -12,7 +12,8 @@
         "process-timeout": 0
     },
     "require": {
-        "vlucas/phpdotenv": "^5.2"
+        "vlucas/phpdotenv": "^5.2",
+        "lcobucci/jwt": "^4.1"
     },
     "require-dev": {
         "phpunit/phpunit": "^8.0",

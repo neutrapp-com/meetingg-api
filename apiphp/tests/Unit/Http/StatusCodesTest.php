@@ -22,18 +22,18 @@ class StatusCodesTest extends AbstractUnitTest
         $this->assertSame($expected, $instanceStatusCode->getMessageForCode($code));
     }
 
-  /**
-     * @dataProvider providerIsError
-     */
+    /**
+       * @dataProvider providerIsError
+       */
     public function testIsError($code, $expected)
     {
         $instanceStatusCode = new StatusCodes();
         $this->assertSame($expected, $instanceStatusCode->isError($code));
     }
 
-/**
-     * @dataProvider providerHaveBody
-     */
+    /**
+         * @dataProvider providerHaveBody
+         */
     public function testCanHaveBody($code, $expected)
     {
         $instanceStatusCode = new StatusCodes();
@@ -44,9 +44,9 @@ class StatusCodesTest extends AbstractUnitTest
     public static function providerMessageForCode(): array
     {
         return [
-            '100' => [100,'100 Continue'],
-            '101' => [101,'101 Switching Protocols'],
-            '200' => [200,'200 OK'],
+            '100' => [100,'Continue'],
+            '101' => [101,'Switching Protocols'],
+            '200' => [200,'OK'],
         ];
     }
 
@@ -87,5 +87,4 @@ class StatusCodesTest extends AbstractUnitTest
             '406 Not Acceptable' => [406, true],
         ];
     }
-
 }
