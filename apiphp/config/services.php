@@ -10,7 +10,7 @@ use Phalcon\Storage\Serializer\Json;
 use Lcobucci\JWT\Configuration;
 use Lcobucci\JWT\Signer\Hmac\Sha512;
 use Lcobucci\JWT\Signer\Key\InMemory;
-use OakLabs\PhalconThrottler\RedisThrottler;
+use Meetingg\Services\Throttler\CacheThrottler;
 
 /**
  * Shared configuration service
@@ -71,7 +71,7 @@ $di->setShared('db', function () {
  */
 
 $di->setShared(
-    'modelsCache',
+    'cache',
     function () {
         $config = $this->getConfig();
         $cacheAdapter = $config->cache->adapter;
@@ -124,9 +124,6 @@ $di->setShared('jwt', function () {
  * Throttler : Rate Limiting
  */
 $di->setShared('throttler', function () use ($di) {
-    return new RedisThrottler($di->get('redis'), [
-        'bucket_size'  => 20,
-        'refill_time'  => 600, // 10m
-        'refill_amount'  => 10
-    ]);
+    $configs =  $di->getConfig()->throttler;
+    return new CacheThrottler($di->get($configs->cacheService ?? 'cache'), $configs->toArray());
 });

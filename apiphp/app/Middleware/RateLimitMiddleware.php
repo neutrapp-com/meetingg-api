@@ -13,10 +13,19 @@ class RateLimitMiddleware implements MiddlewareInterface
 {
     public function beforeExecuteRoute(Event $event, Micro $app)
     {
-        throw new PublicException("You are being rate limited", StatusCodes::HTTP_TOO_MANY_REQUESTS);
+        if ($this->isLimited($app)) {
+            throw new PublicException("You are being rate limited", StatusCodes::HTTP_TOO_MANY_REQUESTS);
+        }
         return false;
     }
 
+    private function isLimited(Micro $app) : bool
+    {
+        $throttler = $app->getService('throttler');
+        $rateLimit = $throttler->consume($app->request->getClientAddress());
+
+        return $rateLimit->isLimited();
+    }
 
     public function call(Micro $app)
     {

@@ -28,7 +28,7 @@ $config =  new Config([
     ],
 
     'cache'=>[
-        'adapter'=> $_ENV['CACHE_ADAPTER'] ?? 'Php',
+        'adapter'=> $_ENV['CACHE_ADAPTER'] ?? 'Stream',
         'options'=>[
             'Redis'=>[
                 'defaultSerializer' => 'Php',
@@ -61,6 +61,14 @@ $config =  new Config([
         (((!empty($_SERVER['HTTPS']) && $_SERVER['HTTPS'] != 'off') || $_SERVER['SERVER_PORT'] == 443) ? "https://" : "http://")
         . $_SERVER['HTTP_HOST'] ,
         'timezone' => 'Europe/Paris'
+    ],
+
+    'throttler' => [
+        'enable'=> true,
+        'cacheSercice' => 'cache',
+        'bucket_size'  => 20,
+        'refill_time'  => 60, // 1m
+        'refill_amount'  => 10,
     ]
 ]);
 
