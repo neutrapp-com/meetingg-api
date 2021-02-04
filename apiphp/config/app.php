@@ -17,8 +17,11 @@ use Meetingg\Middleware\RateLimitMiddleware;
  * - Throttler
  */
 $eventsManager = new Manager();
+// Rate Limiting
 $eventsManager->attach('micro', new RateLimitMiddleware());
-// $eventsManager->attach('micro', new AuthMiddleware());
+// Auth Middleware
+$eventsManager->attach('micro', new AuthMiddleware());
+
 $app->setEventsManager($eventsManager);
 
 
@@ -56,11 +59,6 @@ $app->after(function () use ($app) {
         $content
     ));
 
-    /**
-     * Dynamic response messages
-     */
-    $statusCode = $app->response->getStatusCode();
-    $app->response->setStatusCode($statusCode, StatusCodes::getMessageForCode($statusCode));
     
     /**
      * End & Send Response
@@ -95,9 +93,21 @@ $app->error(
             'status'  => 'error',
             'message' => $e->getMessage(),
         ]);
+        /**
+         * Aditions Headers
+         */
+        if (property_exists(get_class($e), 'headers')) {
+            foreach ($e->getHeaders() as $hname => $hvalue) {
+                $app->response->setHeader($hname, $hvalue);
+            }
+        }
         
-        $statusCode = $codeError;
+        /**
+         * Dynamic response messages
+         */
+        $statusCode = $app->response->getStatusCode() ?: $codeError;
         $app->response->setStatusCode($statusCode, StatusCodes::getMessageForCode($statusCode));
+    
         $app->response->send();
     }
 );

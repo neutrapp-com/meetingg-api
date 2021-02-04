@@ -60,13 +60,11 @@ class CacheThrottler implements ThrottlerInterface
 
     /**
      * @param string $meterId
-     * @param int $warnThreshold
      * @param int $numTokens
-     * @param int|null $time
      *
      * @return RateLimit
      */
-    public function consume(string $meterId, int $warnThreshold = 0, int $numTokens = 1, int $time = null): RateLimit
+    public function consume(string $meterId, int $numTokens = 1): RateLimit
     {
         $this->limitWarning = false;
 
@@ -81,12 +79,10 @@ class CacheThrottler implements ThrottlerInterface
         ['new_value' => $newValue, 'refill_count' => $refillCount] = $this->refillBucket($bucket);
 
         // If still <= 0, it's rate limited
-        if ($newValue <= 0) {
+        $newValue -= $numTokens;
+        if ($newValue < 0) {
             $this->limitExceeded = true;
             $this->limitWarning = true;
-        } else {
-            // Remove the tokens
-            $newValue -= $numTokens;
         }
 
         if ($newValue <= $this->config['warning_limit']) {
@@ -116,7 +112,8 @@ class CacheThrottler implements ThrottlerInterface
             $this->config['refill_time'],
             (int)ceil($this->config['bucket_size'] / $numTokens),
             $this->isLimitExceeded(),
-            $this->isLimitWarning()
+            $this->isLimitWarning(),
+            $this->config['bucket_size'] ?? 0
         );
     }
 

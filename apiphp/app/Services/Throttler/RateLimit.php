@@ -48,9 +48,9 @@ class RateLimit
         int $period,
         int $hitsPerPeriod,
         bool $limited,
-        bool $warning
-    )
-    {
+        bool $warning,
+        int $limit = 0
+    ) {
         $this->hits = $hits;
 
         $this->remaining = $remaining;
@@ -62,6 +62,8 @@ class RateLimit
         $this->limited = $limited;
 
         $this->warning = $warning;
+
+        $this->limit = $limit;
     }
 
     /**
@@ -125,5 +127,13 @@ class RateLimit
             'warning' => $this->isWarning(),
             'limited' => $this->isLimited()
         ];
+    }
+
+    /**
+     * Get the value of limit
+     */
+    public function getLimit() : int
+    {
+        return $this->limit;
     }
 }
