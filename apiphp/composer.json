@@ -27,6 +27,7 @@
         }
     },
     "scripts": {
-        "test": "vendor/bin/phpunit-watcher watch --colors --coverage-text tests/"
+        "test": "vendor/bin/phpunit-watcher watch --colors --coverage-text tests/",
+        "wtest": "vendor\\bin\\phpunit-watcher watch --colors --coverage-text tests\\"
     }
 }
