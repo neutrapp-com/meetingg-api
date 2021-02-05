@@ -3,6 +3,7 @@
 namespace Meetingg\Middleware;
 
 use DateTimeZone;
+use Exception;
 use Lcobucci\Clock\SystemClock;
 use Phalcon\Mvc\Micro;
 use Phalcon\Events\Event;
@@ -10,23 +11,24 @@ use Phalcon\Mvc\Micro\MiddlewareInterface;
 
 use Meetingg\Exception\PublicException;
 
-use Lcobucci\JWT\Configuration;
-use Lcobucci\JWT\UnencryptedToken;
 use Lcobucci\JWT\Validation\Constraint\IssuedBy;
 use Lcobucci\JWT\Validation\Constraint\LooseValidAt;
 use Lcobucci\JWT\Validation\Constraint\PermittedFor;
 use Lcobucci\JWT\Validation\Constraint\SignedWith;
-use Lcobucci\JWT\Validation\RequiredConstraintsViolated;
 use Meetingg\Http\StatusCodes;
 
 class AuthMiddleware implements MiddlewareInterface
 {
+    protected Micro $app;
+
     public function beforeExecuteRoute(Event $event, Micro $app)
     {
         $authorizeExceptions = [
             'index'
         ];
-        if (!in_array($app->router->getMatchedRoute()->getName(), $authorizeExceptions)) {
+        
+        $routeName = $this->getRouteName($app);
+        if (!in_array($routeName, $authorizeExceptions)) {
             $authorized = $this->authorize($app);
             if ($authorized !== false) {
                 $app->response->setStatusCode(401, StatusCodes::HTTP_UNAUTHORIZED);
@@ -50,7 +52,7 @@ class AuthMiddleware implements MiddlewareInterface
      * @param Micro $app
      * @return boolean
      */
-    private function authorize(Micro $app) : bool
+    protected function authorize(Micro $app) : bool
     {
         $authorized = false;
         $config = $app->getService('jwt')["config"];
@@ -74,10 +76,8 @@ class AuthMiddleware implements MiddlewareInterface
                 $config->validator()->assert($token, ...$constraints);
                 $authorized = true;
             } catch (\Exception $e) {
-                // list of constraints violation exceptions
-                $authorized = false;
                 if ($app->config->mode === "development") {
-                    throw new PublicException($e->getMessage());
+                    throw new \Exception($e->getMessage());
                 }
             }
         }
@@ -87,6 +87,7 @@ class AuthMiddleware implements MiddlewareInterface
 
     public function call(Micro $app)
     {
+        $this->app = $app;
         return true;
     }
     
@@ -104,5 +105,17 @@ class AuthMiddleware implements MiddlewareInterface
             }
         }
         return null;
+    }
+
+    /**
+     * Get Route Name
+     */
+    public function getRouteName(Micro $app) :? string
+    {
+        $router = $app->router;
+        if ($router === null || $router->getMatchedRoute() === null) {
+            throw new Exception("Router is missing to get route name");
+        }
+        return $router->getMatchedRoute()->getName();
     }
 }
