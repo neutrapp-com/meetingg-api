@@ -98,31 +98,31 @@ class AuthMiddlewareTest extends AbstractUnitTest
         $this->assertSame(true, $instance->beforeExecuteRoute($event, $app));
     }
 
-    // public function testAuthorize() : void
-    // {
-    //     $token = 'Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIxMjM0NTY3ODkwIiwibmFtZSI6IkpvaG4gRG9lIiwiaWF0IjoxNTE2MjM5MDIyfQ.SflKxwRJSMeKKF2QT4fwpMeJf36POk6yJV_adQssw5c';
+    public function testAuthorize() : void
+    {
+        $token = 'Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIxMjM0NTY3ODkwIiwibmFtZSI6IkpvaG4gRG9lIiwiaWF0IjoxNTE2MjM5MDIyfQ.SflKxwRJSMeKKF2QT4fwpMeJf36POk6yJV_adQssw5c';
         
-    //     extract($this->newMicroApp());
+        extract($this->newMicroApp());
 
-    //     $instance = new AuthMiddleware();
-    //     $class = new ReflectionClass(AuthMiddleware::class);
-    //     $method = $class->getMethod('authorize');
-    //     $method->setAccessible(true);
+        $instance = new AuthMiddleware();
+        $class = new ReflectionClass(AuthMiddleware::class);
+        $method = $class->getMethod('authorize');
+        $method->setAccessible(true);
 
-    //     try {
-    //         $this->assertTrue($method->invoke($instance, $app));
-    //     } catch (\Exception $e) {
-    //         $this->assertSame("Service 'jwt' wasn't found in the dependency injection container", $e->getMessage());
-    //     }
+        try {
+            $this->assertTrue($method->invoke($instance, $app));
+        } catch (\Exception $e) {
+            $this->assertSame("Service 'jwt' wasn't found in the dependency injection container", $e->getMessage());
+        }
         
-    //     $diFactory = $this->initConfigJWT($diFactory);
+        $diFactory = $this->initConfigJWT($diFactory);
 
-    //     $this->assertFalse($method->invoke($instance, $app));
-    //     $_SERVER["HTTP_AUTHORIZATION"]  = $token;
+        $this->assertFalse($method->invoke($instance, $app));
+        $_SERVER["HTTP_AUTHORIZATION"]  = $token;
 
-    //     $this->expectExceptionMessage("The token violates some mandatory constraints, details:\n- The token was not issued by the given issuers\n- The token is not allowed to be used by this audience\n- Token signer mismatch");
-    //     $this->assertFalse($method->invoke($instance, $app));
-    // }
+        $this->expectExceptionMessage("The token violates some mandatory constraints, details:\n- The token was not issued by the given issuers\n- The token is not allowed to be used by this audience\n- Token signer mismatch");
+        $this->assertFalse($method->invoke($instance, $app));
+    }
 
     public function testAuthorizeJWTTokens() : void
     {
