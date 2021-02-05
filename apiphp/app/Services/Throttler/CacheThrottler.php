@@ -9,22 +9,22 @@ class CacheThrottler implements ThrottlerInterface
     /**
      * @var Cache
      */
-    protected $cache;
+    protected Cache $cache;
 
     /**
      * @var array
      */
-    protected $config;
+    protected array $config;
 
     /**
      * @var bool
      */
-    protected $limitExceeded;
+    protected bool $limitExceeded;
 
     /**
      * @var bool
      */
-    protected $limitWarning;
+    protected bool $limitWarning;
 
     /**
      * @param Cache $cacheAdapter
@@ -40,6 +40,8 @@ class CacheThrottler implements ThrottlerInterface
         ], $config);
 
         $this->cache = $cache;
+        $this->limitWarning = false;
+        $this->limitExceeded = false;
     }
 
     /**
@@ -171,6 +173,6 @@ class CacheThrottler implements ThrottlerInterface
      */
     public static function encodeKey(string $key) : string
     {
-        return preg_replace("/[^A-Za-z0-9?! ]/", ".", $key);
+        return strval(preg_replace("/[^A-Za-z0-9]/", ".", $key));
     }
 }
