@@ -1,7 +1,7 @@
 <?php
 
 use Phalcon\Mvc\Micro\Collection;
-use Meetingg\Controllers\ProfileController;
+use Meetingg\Controllers\User\ProfileController;
 
 $collection = new Collection();
 
