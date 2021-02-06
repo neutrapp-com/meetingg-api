@@ -10,6 +10,11 @@ class BaseModel extends Model implements SharedConstInterface
     protected $client_ip = null;
     protected $schemaName = "dma";
 
+    public function setDefaultSchema() : void
+    {
+        $this->setSchema($this->getDI()->config->database->schema ?? "mgg");
+    }
+
     /**
      * Before Create , Save microtime into database
      *
@@ -78,7 +83,7 @@ class BaseModel extends Model implements SharedConstInterface
      *
      * @return string
      */
-    public function getIp() : string 
+    public function getIp() : string
     {
         return $this->client_ip;
     }
@@ -86,7 +91,7 @@ class BaseModel extends Model implements SharedConstInterface
     /**
      * Get Time in seconds
      */
-    public static function getTime() : int 
+    public static function getTime() : int
     {
         return microtime(true);
     }
