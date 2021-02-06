@@ -1,6 +1,6 @@
 <?php
 declare(strict_types=1);
-namespace Meetingg\Controllers;
+namespace Meetingg\Controllers\User;
 
 use Meetingg\Controllers\Auth\AuthentifiedController;
 use Meetingg\Models\User;
@@ -10,7 +10,6 @@ class ProfileController extends AuthentifiedController
     public function index()
     {
         return [
-            User::find(),
             '/profile/data',
             '/profile/update',
             '/profile/avatar',

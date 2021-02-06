@@ -3,14 +3,14 @@
 declare(strict_types=1);
 
 namespace Tests\Unit\Services;
+
 use Tests\Unit\AbstractUnitTest;
 use Meetingg\Services\Throttler\CacheThrottler;
 use Phalcon\Cache as Cache;
 use Phalcon\Cache\Adapter\Stream;
 use Phalcon\Storage\SerializerFactory;
 
-
-class CacheThrottlerTest extends AbstractUnitTest 
+class CacheThrottlerTest extends AbstractUnitTest
 {
     public CacheThrottler $instance;
 
@@ -42,17 +42,19 @@ class CacheThrottlerTest extends AbstractUnitTest
     /**
      * @dataProvider providerEncodeKey
      */
-    public function testEncodeKey(string $input,string $output) : void
+    public function testEncodeKey(string $input, string $output) : void
     {
         $this->assertSame($output, $this->instance::encodeKey($input));
     }
 
     public static function providerEncodeKey() : array
     {
-        return array( 
+        return array(
             ["abc", "abc"],
             ["123%", "123."],
             ["12-3", "12.3"],
+            ["12- 3", "12..3"],
+            ["12-@3", "12..3"],
             ["Ajc^ L", "Ajc..L"]
         );
     }

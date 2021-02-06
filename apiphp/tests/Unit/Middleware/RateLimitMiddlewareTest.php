@@ -53,8 +53,6 @@ class RateLimitMiddlewareTest extends AbstractUnitTest
                 }
 
                 $isLimited = parent::isLimited($app);
-                var_dump($isLimited ? 'limitedddddddddd' : 'no');
-
                 return $isLimited;
             }
 
@@ -68,13 +66,15 @@ class RateLimitMiddlewareTest extends AbstractUnitTest
         $this->assertSame(true, $instance->beforeExecuteRoute($event, $app));
 
         $instance->_isLimited = true;
-        $instance->setRateLimit(new RateLimit(1, 0, 1, 1, true, true, 10, 50));
+        $instance->setRateLimit(new RateLimit(0, 0, 0, 0, true, true, 0, 0));
         try {
             $called = $instance->beforeExecuteRoute($event, $app);
             $this->assertNull($called);
         } catch (\Exception $e) {
             $this->assertSame($e->getMessage(), "You are being rate limited");
         }
+
+        $this->assertIsArray($diFactory->getShared('throttler')->consume('local', 50)->toArray());
     }
 
 

@@ -22,7 +22,7 @@ abstract class AbstractUnitTest extends UnitTestCase
 {
     private bool $loaded = false;
 
-    protected function setUp(): void
+    protected function setUp() : void
     {
         parent::setUp();
 
