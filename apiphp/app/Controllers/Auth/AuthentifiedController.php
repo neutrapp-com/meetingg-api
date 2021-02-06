@@ -15,10 +15,9 @@ class AuthentifiedController extends BaseController
     public array $publicActions = [];
 
     public function onConstruct()
-    { 
-        if (!$this->isLogged) {
-            throw new PublicException("You must be authentified to access to this resource");
-        }
+    {
+        // if (!$this->isLogged) {
+        //     throw new PublicException("You must be authentified to access to this resource");
+        // }
     }
-     
 }
