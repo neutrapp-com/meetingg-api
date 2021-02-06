@@ -12,7 +12,7 @@ defined('APP_PATH') || define('APP_PATH', BASE_PATH . '/app');
 
 require_once(dirname(__DIR__) . '/vendor/autoload.php');
 
-(Dotenv::createImmutable(dirname(__DIR__)))->load();
+(Dotenv::createImmutable(defined('ENV_PATH') ? ENV_PATH : dirname(__DIR__)))->load();
 
 $config =  new Config([
     'mode' => $_ENV['APP_ENV'] ?? 'production',
@@ -60,7 +60,8 @@ $config =  new Config([
         'url'  =>
         (((!empty($_SERVER['HTTPS']) && $_SERVER['HTTPS'] != 'off') || ($_SERVER['SERVER_PORT'] ?? null) == 443) ? "https://" : "http://")
         . ($_SERVER['HTTP_HOST'] ?? 'localhost') ,
-        'timezone' => 'Europe/Paris'
+        'timezone' => 'Europe/Paris',
+        'secretkey'=> $_ENV['JWT_SIGNER_KEY_BASE64BASE'] ?? "U0VDUkVU"
     ],
 
     'throttler' => [
