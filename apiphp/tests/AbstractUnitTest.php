@@ -4,6 +4,8 @@ declare(strict_types=1);
 
 namespace Tests\Unit;
 
+define('ENV_PATH', __DIR__);
+
 use DateTimeImmutable;
 
 use Phalcon\Di;
@@ -12,11 +14,9 @@ use Phalcon\Di\FactoryDefault;
 use Phalcon\Incubator\Test\PHPUnit\UnitTestCase;
 use PHPUnit\Framework\IncompleteTestError;
 
-use Meetingg\Services\Throttler\CacheThrottler;
 use Lcobucci\JWT\Configuration;
 use Lcobucci\JWT\Signer\Hmac\Sha512;
 use Lcobucci\JWT\Signer\Key\InMemory;
-use PHPUnit\Runner\Filter\Factory;
 
 abstract class AbstractUnitTest extends UnitTestCase
 {
@@ -31,6 +31,7 @@ abstract class AbstractUnitTest extends UnitTestCase
         Di::reset();
         Di::setDefault($di);
 
+        $this->config = require('config/config.php');
         $this->loaded = true;
     }
 
@@ -51,6 +52,12 @@ abstract class AbstractUnitTest extends UnitTestCase
     {
         $di = new FactoryDefault();
         $app = new Micro($di);
+
+        $config = $this->config;
+
+        $di->setShared('config', function () use ($config) {
+            return $config;
+        });
 
         return ['diFactory' => $di , 'app' => $app];
     }
@@ -76,20 +83,11 @@ abstract class AbstractUnitTest extends UnitTestCase
     }
 
     
-    protected function initConfigJWT($diFactory) : FactoryDefault
+    protected function initServiceJWT($diFactory) : FactoryDefault
     {
-        $diFactory->setShared('config', function () {
-            return json_decode(json_encode([
-                'mode'=>'development',
-                'jwt' => [
-                    'url'  => 'http://localhost:8000',
-                    'timezone' => 'Europe/Paris'
-                ],
-            ]));
-        });
-
         $diFactory->setShared('jwt', function () {
-            $secretKey = InMemory::base64Encoded("U0VDUkVU");
+            $secretString = $this->getConfig()->jwt->secretkey;
+            $secretKey = InMemory::base64Encoded($secretString);
             $config = Configuration::forSymmetricSigner(
                 // You may use any HMAC variations (256, 384, and 512)
                 new Sha512(),

@@ -5,17 +5,11 @@ namespace Tests\Unit\Exception;
 
 use ReflectionClass;
 
-use Lcobucci\JWT\Configuration;
-use Lcobucci\JWT\Signer\Hmac\Sha512;
-use Lcobucci\JWT\Signer\Key\InMemory;
-
 use Phalcon\Mvc\Micro;
-use Phalcon\Di\FactoryDefault;
 use Phalcon\Events\Event;
 
 use Tests\Unit\AbstractUnitTest;
 use Meetingg\Middleware\AuthMiddleware;
-use Meetingg\Exception\PublicException;
 
 class AuthMiddlewareTest extends AbstractUnitTest
 {
@@ -56,7 +50,7 @@ class AuthMiddlewareTest extends AbstractUnitTest
     public function testBeforeExecuteRoute() : void
     {
         extract($this->generateNewMicroApp());
-        $diFactory = $this->initConfigJWT($diFactory);
+        $diFactory = $this->initServiceJWT($diFactory);
         $event = new Event("beforeExecuteRoute", $app);
 
         $instance = new class() extends AuthMiddleware {
@@ -114,20 +108,23 @@ class AuthMiddlewareTest extends AbstractUnitTest
             $this->assertSame("Service 'jwt' wasn't found in the dependency injection container", $e->getMessage());
         }
         
-        $diFactory = $this->initConfigJWT($diFactory);
+        $diFactory = $this->initServiceJWT($diFactory);
 
         $this->assertFalse($method->invoke($instance, $app));
         $_SERVER["HTTP_AUTHORIZATION"]  = $token;
 
         $this->expectExceptionMessage("The token violates some mandatory constraints, details:\n- The token was not issued by the given issuers\n- The token is not allowed to be used by this audience\n- Token signer mismatch");
-        $this->assertFalse($method->invoke($instance, $app));
+        $authorized =  $this->assertFalse($method->invoke($instance, $app));
+        
+        $this->assertNotTrue($authorized);
+        $this->assertNull($authorized);
     }
 
     public function testAuthorizeJWTTokens() : void
     {
         extract($this->generateNewMicroApp());
 
-        $diFactory = $this->initConfigJWT($diFactory);
+        $diFactory = $this->initServiceJWT($diFactory);
         $token = $this->generateJWTToken($app, $diFactory->getShared('jwt')['config'])->toString();
 
         // verify headers method

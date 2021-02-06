@@ -76,7 +76,7 @@ class AuthMiddleware implements MiddlewareInterface
                 $config->validator()->assert($token, ...$constraints);
                 $authorized = true;
             } catch (\Exception $e) {
-                if ($app->config->mode === "development") {
+                if (in_array($app->config->mode, ['development' ,'testing'])) {
                     throw new \Exception($e->getMessage());
                 }
             }

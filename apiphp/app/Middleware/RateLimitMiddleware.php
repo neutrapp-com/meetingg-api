@@ -14,6 +14,11 @@ class RateLimitMiddleware implements MiddlewareInterface
 {
     protected RateLimit $rateLimit;
 
+    public function __construct()
+    {
+        $this->rateLimit = new RateLimit(0, 0, 0, 0, false, false, 0, 0);
+    }
+
     public function beforeExecuteRoute(Event $event, Micro $app)
     {
         $isLimited = $this->isLimited($app);

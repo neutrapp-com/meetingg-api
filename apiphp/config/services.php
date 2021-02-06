@@ -5,7 +5,7 @@ use Phalcon\Cache;
 use Phalcon\Url as UrlResolver;
 use Phalcon\Mvc\View\Simple as View;
 use Phalcon\Storage\SerializerFactory;
-use Phalcon\Storage\Serializer\Json;
+use Phalcon\Storage\Serializer\Json as JsonSerializer;
 
 use Lcobucci\JWT\Configuration;
 use Lcobucci\JWT\Signer\Hmac\Sha512;
@@ -76,7 +76,7 @@ $di->setShared(
         $config = $this->getConfig();
         $cacheAdapter = $config->cache->adapter;
 
-        $jsonSerializer = new Json();
+        $jsonSerializer = new JsonSerializer();
 
         if (!$config->cache->options[$cacheAdapter]) {
             throw new Exception("Cache Adapter $cacheAdapter Options null");
@@ -104,7 +104,7 @@ $di->setShared(
  * JWT Shared
  */
 $di->setShared('jwt', function () {
-    $secretKey = InMemory::base64Encoded($_ENV['JWT_SIGNER_KEY_BASE64BASE'] ?? "U0VDUkVU");
+    $secretKey = InMemory::base64Encoded($this->getConfig()->jwt->secretkey);
     $config = Configuration::forSymmetricSigner(
         // You may use any HMAC variations (256, 384, and 512)
         new Sha512(),
