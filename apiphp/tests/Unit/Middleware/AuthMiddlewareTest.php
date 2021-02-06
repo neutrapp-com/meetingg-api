@@ -4,7 +4,6 @@ declare(strict_types=1);
 namespace Tests\Unit\Exception;
 
 use ReflectionClass;
-use DateTimeImmutable;
 
 use Lcobucci\JWT\Configuration;
 use Lcobucci\JWT\Signer\Hmac\Sha512;
@@ -56,7 +55,7 @@ class AuthMiddlewareTest extends AbstractUnitTest
     
     public function testBeforeExecuteRoute() : void
     {
-        extract($this->newMicroApp());
+        extract($this->generateNewMicroApp());
         $diFactory = $this->initConfigJWT($diFactory);
         $event = new Event("beforeExecuteRoute", $app);
 
@@ -102,7 +101,7 @@ class AuthMiddlewareTest extends AbstractUnitTest
     {
         $token = 'Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIxMjM0NTY3ODkwIiwibmFtZSI6IkpvaG4gRG9lIiwiaWF0IjoxNTE2MjM5MDIyfQ.SflKxwRJSMeKKF2QT4fwpMeJf36POk6yJV_adQssw5c';
         
-        extract($this->newMicroApp());
+        extract($this->generateNewMicroApp());
 
         $instance = new AuthMiddleware();
         $class = new ReflectionClass(AuthMiddleware::class);
@@ -126,7 +125,7 @@ class AuthMiddlewareTest extends AbstractUnitTest
 
     public function testAuthorizeJWTTokens() : void
     {
-        extract($this->newMicroApp());
+        extract($this->generateNewMicroApp());
 
         $diFactory = $this->initConfigJWT($diFactory);
         $token = $this->generateJWTToken($app, $diFactory->getShared('jwt')['config'])->toString();
@@ -163,7 +162,7 @@ class AuthMiddlewareTest extends AbstractUnitTest
     
     public function testGetRouteName() : void
     {
-        extract($this->newMicroApp());
+        extract($this->generateNewMicroApp());
         $auth = new AuthMiddleware();
 
         try {
@@ -191,68 +190,5 @@ class AuthMiddlewareTest extends AbstractUnitTest
                 }
             }
         ));
-    }
-
-
-    /**
-     * Helper Methods
-     *
-     */
-    private function newMicroApp() : array
-    {
-        $diFactory = new FactoryDefault();
-        $app = new Micro($diFactory);
-
-        return ['diFactory' => $diFactory , 'app' => $app];
-    }
-
-    private function initConfigJWT($diFactory) : FactoryDefault
-    {
-        $diFactory->setShared('config', function () {
-            return json_decode(json_encode([
-                'mode'=>'development',
-                'jwt' => [
-                    'url'  => 'http://localhost:8000',
-                    'timezone' => 'Europe/Paris'
-                ],
-            ]));
-        });
-
-        $diFactory->setShared('jwt', function () {
-            $secretKey = InMemory::base64Encoded("U0VDUkVU");
-            $config = Configuration::forSymmetricSigner(
-                // You may use any HMAC variations (256, 384, and 512)
-                new Sha512(),
-                // replace the value below with a key of your own!
-                $secretKey
-                // You may also override the JOSE encoder/decoder if needed by providing extra arguments here
-            );
-        
-            return [
-                'key'=> $secretKey,
-                'config'=> $config
-            ];
-        });
-
-        return $diFactory;
-    }
-
-    public function generateJWTToken(Micro $app, Configuration $config, string $expire = '+1 hour') : object
-    {
-        $now   = new DateTimeImmutable();
-
-        return $config->builder()
-            // Configures the issuer (iss claim)
-            ->issuedBy($app->config->jwt->url)
-            // Configures the audience (aud claim)
-            ->permittedFor($app->config->jwt->url)
-            // Configures the time that the token was issue (iat claim)
-            ->issuedAt($now)
-            // Configures the expiration time of the token (exp claim)
-            ->expiresAt($now->modify($expire))
-            // Configures a new claim, called "uid"
-            ->withClaim('uid', 1)
-            // Builds a new token
-            ->getToken($config->signer(), $config->signingKey());
     }
 }

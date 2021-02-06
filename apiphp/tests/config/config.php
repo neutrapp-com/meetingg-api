@@ -58,7 +58,7 @@ $config =  new Config([
 
     'jwt' => [
         'url'  =>
-        (((!empty($_SERVER['HTTPS']) && $_SERVER['HTTPS'] != 'off') || ($_SERVER['SERVER_PORT'] ?? null) == 443) ? "https://" : "http://")
+        (((!empty($_SERVER['HTTPS']) && $_SERVER['HTTPS'] != 'off') || $_SERVER['SERVER_PORT'] == 443) ? "https://" : "http://")
         . $_SERVER['HTTP_HOST'] ,
         'timezone' => 'Europe/Paris'
     ],

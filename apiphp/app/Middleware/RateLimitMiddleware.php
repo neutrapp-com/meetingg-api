@@ -35,7 +35,7 @@ class RateLimitMiddleware implements MiddlewareInterface
         return true;
     }
 
-    private function isLimited(Micro $app) : bool
+    public function isLimited(Micro $app) : bool
     {
         $throttler = $app->getService('throttler');
         $this->rateLimit = $throttler->consume($app->request->getClientAddress());
