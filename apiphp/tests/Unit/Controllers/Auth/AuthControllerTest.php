@@ -17,13 +17,13 @@ class AuthControllerTest extends AbstractUnitTest
         $this->assertInstanceOf(BaseController::class, $instanceController);
     }
 
-    public function testIndexAction()
-    {
-        $instanceController = new AuthController();
+    // public function testIndexAction()
+    // {
+    //     $instanceController = new AuthController();
 
-        $this->assertSame(
-            $instanceController->index(),
-            array()
-        );
-    }
+    //     $this->assertSame(
+    //         $instanceController->index(),
+    //         array()
+    //     );
+    // }
 }

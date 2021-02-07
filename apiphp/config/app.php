@@ -24,6 +24,21 @@ $eventsManager->attach('micro', new AuthMiddleware());
 
 $app->setEventsManager($eventsManager);
 
+/**
+ * Convert application/json Data to Request
+ */
+$app->before(function () use ($app) {
+    $contentType = $app->request->getHeader('Content-Type');
+    $contentType = $_SERVER['CONTENT_TYPE'];
+    if ($contentType === 'application/json') {
+        $rawBody = $app->request->getJsonRawBody(true);
+        // inject params in the request
+
+        foreach ($rawBody as $key => $value) {
+            $_REQUEST[$key] = $value;
+        }
+    }
+});
 
 /**
  * Add your routes here
@@ -82,6 +97,7 @@ $app->finish(function () use ($app) {
 $app->error(
     function ($e) use ($app) {
         $codeError = $e->getCode() ?: 401;
+
         $app->response->setContentType('application/json');
         $app->response->setJsonContent(
             array_merge(
@@ -110,7 +126,7 @@ $app->error(
         /**
          * Dynamic response messages
          */
-        $statusCode = $app->response->getStatusCode() ?: $codeError;
+        $statusCode = StatusCodes::parseCode($app->response->getStatusCode() ?: $codeError);
         $app->response->setStatusCode($statusCode, StatusCodes::getMessageForCode($statusCode));
     
         $app->response->send();

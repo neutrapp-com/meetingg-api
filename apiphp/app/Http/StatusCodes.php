@@ -123,7 +123,7 @@ class StatusCodes
 
     public static function getMessageForCode($code)
     {
-        return self::$messages[$code];
+        return self::$messages[$code] ?? self::$messages[self::HTTP_NOT_ACCEPTABLE];
     }
 
     public static function isError($code)
@@ -140,5 +140,19 @@ class StatusCodes
             $code != self::HTTP_NO_CONTENT
             && // and not 304 NOT MODIFIED
             $code != self::HTTP_NOT_MODIFIED;
+    }
+
+
+    /**
+     * Validate Status Code
+     *
+     * @param mixed $code
+     * @return integer
+     */
+    public static function parseCode($code) : int
+    {
+        $code = intval($code);
+
+        return in_array($code, self::$messages) ? $code : self::HTTP_NOT_ACCEPTABLE;
     }
 }

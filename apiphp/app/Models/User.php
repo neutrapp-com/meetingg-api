@@ -2,8 +2,10 @@
 
 namespace Meetingg\Models;
 
+use Phalcon\Security;
 use Phalcon\Validation;
 use Phalcon\Validation\Validator\Email as EmailValidator;
+use Phalcon\Validation\Validator\Regex;
 
 class User extends BaseModel
 {
@@ -161,4 +163,44 @@ class User extends BaseModel
         return parent::findFirst($parameters);
     }
 
+
+    /**
+     * Validate Password
+     */
+    public function validatePassword(string $password) : bool
+    {
+        return $this
+            ->getDI()
+            ->getSecurity()
+            ->checkHash($password, $this->password);
+    }
+
+    /**
+     * Hash Password
+     */
+    public static function hashPassword($password) : string
+    {
+        $security = new Security();
+        return $security
+            ->hash($password);
+    }
+
+    /**
+     * Get User Profile
+     */
+    public function getProfile(array $excludeFields = [], array $customIncludes = []) : array
+    {
+        $includeInputs = array_merge(
+            ['id','firstname','lastname','city','country','email','avatar','phone','fax','status','created_at','updated_at'],
+            $customIncludes
+        );
+
+        $userData = [];
+        foreach ($this->toArray() as $key => $val) {
+            if (in_array($key, $includeInputs) && !in_array($excludeFields)) {
+                $userData[$key] = $val;
+            }
+        }
+        return $userData;
+    }
 }

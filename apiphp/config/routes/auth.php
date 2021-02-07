@@ -12,9 +12,9 @@ $collection
 // getters
         ->get("/session", "session")
 // actions
-        ->post("/login", "login")
-        ->post("/register", "register")
-        ->post("/forgetpassword", "forgetpassword");
+        ->post("/login", "login", "login")
+        ->post("/register", "register", "register")
+        ->post("/forgetpassword", "forgetpassword", "forgetpassword");
 
 
 

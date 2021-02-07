@@ -43,13 +43,13 @@ include BASE_PATH . '/config/app.php';
 
 try {
     
-/**
- * Handle the request
- */
+    /**
+     * Handle the request
+     */
     $app->handle($_SERVER['REQUEST_URI']);
 } catch (\Exception $e) {
     if (!($e instanceof PublicException)) {
         // log errors
-        print_r($e);
+        //print_r($e);
     }
 }

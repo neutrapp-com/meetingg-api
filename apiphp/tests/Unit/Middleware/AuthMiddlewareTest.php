@@ -55,7 +55,7 @@ class AuthMiddlewareTest extends AbstractUnitTest
 
         $instance = new class() extends AuthMiddleware {
             public $_routeName = "profile";
-            public $_authorized = true;
+            public $_authorized = null;
 
 
             public function getRouteName(Micro $app): ?string
@@ -63,7 +63,7 @@ class AuthMiddlewareTest extends AbstractUnitTest
                 return $this->_routeName;
             }
         
-            protected function authorize(Micro $app) : bool
+            protected function authorize(Micro $app) :? object
             {
                 return  $this->_authorized;
             }
@@ -87,7 +87,7 @@ class AuthMiddlewareTest extends AbstractUnitTest
 
         $instance->_routeName = "index";
         $this->assertSame('index', $instance->getRouteName($app));
-        $this->expectExceptionMessage("Only app/json is accepted for Content-Type in POST requests");
+        $this->expectExceptionMessage("Only application/json is accepted for Content-Type in POST requests");
         $this->assertSame(true, $instance->beforeExecuteRoute($event, $app));
     }
 
@@ -110,7 +110,7 @@ class AuthMiddlewareTest extends AbstractUnitTest
         
         $diFactory = $this->initServiceJWT($diFactory);
 
-        $this->assertFalse($method->invoke($instance, $app));
+        $this->assertNull($method->invoke($instance, $app));
         $_SERVER["HTTP_AUTHORIZATION"]  = $token;
 
         $this->expectExceptionMessage("The token violates some mandatory constraints, details:\n- The token was not issued by the given issuers\n- The token is not allowed to be used by this audience\n- Token signer mismatch");
@@ -148,13 +148,14 @@ class AuthMiddlewareTest extends AbstractUnitTest
 
         $_SERVER["HTTP_AUTHORIZATION"]  =  "Bearer $token";
         $this->assertSame($app->request->getHeader("Authorization"), $_SERVER['HTTP_AUTHORIZATION']);
-        $valid  = false;
+        $valid  = null;
         try {
             $valid = $method->invoke($instance, $app);
         } catch (\Exception $e) {
+            $valid = null;
         }
 
-        return $valid;
+        return !is_null($valid);
     }
     
     public function testGetRouteName() : void
