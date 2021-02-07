@@ -202,3 +202,6 @@ ALTER TABLE "mgg".notification ADD CONSTRAINT fk_notification_meeting FOREIGN KE
 ALTER TABLE "mgg".notification ADD CONSTRAINT fk_notification_discussion FOREIGN KEY ( discussion_id ) REFERENCES "mgg".discussion( id );
 
 ALTER TABLE "mgg"."user" ADD CONSTRAINT fk_user_meetinginvite FOREIGN KEY ( invite_id ) REFERENCES "mgg".invite( id );
+
+-- v0.0.2
+ALTER TABLE "mgg"."user" ADD permissions jsonb DEFAULT '[]';

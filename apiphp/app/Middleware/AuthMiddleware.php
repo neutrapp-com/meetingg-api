@@ -2,20 +2,21 @@
 
 namespace Meetingg\Middleware;
 
-use DateTimeZone;
 use Exception;
-use Lcobucci\Clock\SystemClock;
+use DateTimeZone;
 use Phalcon\Mvc\Micro;
 use Phalcon\Events\Event;
 use Phalcon\Mvc\Micro\MiddlewareInterface;
 
-use Meetingg\Exception\PublicException;
-
+use Lcobucci\Clock\SystemClock;
 use Lcobucci\JWT\Validation\Constraint\IssuedBy;
 use Lcobucci\JWT\Validation\Constraint\LooseValidAt;
 use Lcobucci\JWT\Validation\Constraint\PermittedFor;
 use Lcobucci\JWT\Validation\Constraint\SignedWith;
+
+use Meetingg\Models\User;
 use Meetingg\Http\StatusCodes;
+use Meetingg\Exception\PublicException;
 
 class AuthMiddleware implements MiddlewareInterface
 {
@@ -24,22 +25,27 @@ class AuthMiddleware implements MiddlewareInterface
     public function beforeExecuteRoute(Event $event, Micro $app)
     {
         $authorizeExceptions = [
-            'index'
+            'index', 'login', 'register', 'forgetpassword'
         ];
         
         $routeName = $this->getRouteName($app);
         if (!in_array($routeName, $authorizeExceptions)) {
-            $authorized = $this->authorize($app);
-            if ($authorized !== false) {
+            $authorization = $this->authorize($app);
+            
+            if (is_null($authorization) !== false) {
                 $app->response->setStatusCode(401, StatusCodes::HTTP_UNAUTHORIZED);
                 throw new PublicException("Please authorize with valid API token");
                 return false;
             }
+
+            $app->getDI()->setShared('user', function () use ($authorization) {
+                return User::findFirstById($authorization->claims()->get('uid'));
+            });
         }
 
-        if (in_array($app->request->getMethod(), ['POST', 'PUT']) and $app->request->getHeader('Content-Type') != 'app/json') {
+        if (in_array($app->request->getMethod(), ['POST', 'PUT']) and $app->request->getHeader('Content-Type') != 'application/json') {
             $app->response->setStatusCode(400, StatusCodes::HTTP_BAD_REQUEST);
-            throw new PublicException("Only app/json is accepted for Content-Type in POST requests");
+            throw new PublicException("Only application/json is accepted for Content-Type in POST requests");
             return false;
         }
 
@@ -52,9 +58,9 @@ class AuthMiddleware implements MiddlewareInterface
      * @param Micro $app
      * @return boolean
      */
-    protected function authorize(Micro $app) : bool
+    protected function authorize(Micro $app) :? object
     {
-        $authorized = false;
+        $authorized = null;
         $config = $app->getService('jwt')["config"];
 
         $authorization = $app->request->getHeader('Authorization');
@@ -63,7 +69,7 @@ class AuthMiddleware implements MiddlewareInterface
         if (!is_null($JWT_Token)) {
             $signer = $config->signer();
             $key    = $config->verificationKey();
-            $token = $config->parser()->parse($JWT_Token);
+            $tokenParsed = $config->parser()->parse($JWT_Token);
 
             $constraints = [
                 new IssuedBy($app->config->jwt->url),
@@ -73,9 +79,10 @@ class AuthMiddleware implements MiddlewareInterface
             ];
 
             try {
-                $config->validator()->assert($token, ...$constraints);
-                $authorized = true;
+                $config->validator()->assert($tokenParsed, ...$constraints);
+                $authorized = $tokenParsed;
             } catch (\Exception $e) {
+                $authorized = null;
                 if (in_array($app->config->mode, ['development' ,'testing'])) {
                     throw new \Exception($e->getMessage());
                 }

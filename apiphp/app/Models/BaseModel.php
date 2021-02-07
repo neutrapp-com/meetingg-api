@@ -95,4 +95,16 @@ class BaseModel extends Model implements SharedConstInterface
     {
         return microtime(true);
     }
+
+    /**
+     * Validate an UUID
+     *
+     * @param string $uuid
+     * @return boolean
+     */
+    public static function validUUID(string $uuid) : bool
+    {
+        $matches = preg_match('/^[0-9a-z]{8}-[0-9a-z]{4}-[0-9a-z]{4}-[0-9a-z]{4}-[0-9a-f]{12}$/i', $uuid);
+        return $matches >= 1;
+    }
 }

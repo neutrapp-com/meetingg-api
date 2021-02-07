@@ -3,21 +3,32 @@ declare(strict_types=1);
 
 namespace Meetingg\Controllers\Auth;
 
-use Meetingg\Controllers\BaseController;
+use Meetingg\Http\StatusCodes;
 use Meetingg\Exception\PublicException;
+use Meetingg\Controllers\BaseController;
 
 /**
  *  Client Auth Controller
  */
 class AuthentifiedController extends BaseController
 {
-    public bool $isLogged = false;
-    public array $publicActions = [];
-
-    public function onConstruct()
+    /**
+     * Permissions expecting to do an action
+     *
+     * @throws PublicException
+     *
+     * @param string $permissionId
+     * @return boolean|null
+     */
+    protected function expectPermission(string $permissionId) :? bool
     {
-        // if (!$this->isLogged) {
-        //     throw new PublicException("You must be authentified to access to this resource");
-        // }
+        $userPermissions = $this->getDI()->get('user')->permissions ?: '["test"]';
+        $userPermissions = json_decode($userPermissions);
+        
+        if (!in_array($permissionId, $userPermissions)) {
+            throw new PublicException("Forbidden actions", StatusCodes::HTTP_FORBIDDEN);
+        }
+
+        return true;
     }
 }

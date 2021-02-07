@@ -26,6 +26,5 @@ class ProfileControllerTest extends AbstractUnitTest
     public function testMethods() : void
     {
         $this->assertIsArray($this->instance->index());
-        $this->assertIsArray($this->instance->data());
     }
 }
