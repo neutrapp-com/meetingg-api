@@ -11,13 +11,13 @@ $collection->setPrefix('/profile');
 
 $collection
 // getters
-        ->get("/", "index")
-        ->get("/me", "myprofile")
-        ->get("/user/{id}", "userprofile")
+    ->get("/", "index", "public")
+    ->get("/me", "myprofile")
+    ->get("/user/{id}", "userprofile")
 // actions
-        ->post("/me/avatar", "avatar")
-        ->post("/me/update", "update")
-        ;
+    ->post("/me/avatar", "avatar")
+    ->post("/me/update", "update")
+    ;
 
 
 

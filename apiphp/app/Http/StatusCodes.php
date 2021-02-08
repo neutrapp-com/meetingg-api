@@ -153,6 +153,6 @@ class StatusCodes
     {
         $code = intval($code);
 
-        return in_array($code, self::$messages) ? $code : self::HTTP_NOT_ACCEPTABLE;
+        return isset(self::$messages[$code]) ? $code : self::HTTP_NOT_ACCEPTABLE;
     }
 }

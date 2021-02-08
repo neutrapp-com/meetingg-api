@@ -50,6 +50,6 @@ try {
 } catch (\Exception $e) {
     if (!($e instanceof PublicException)) {
         // log errors
-        //print_r($e);
+        // print_r($e);
     }
 }

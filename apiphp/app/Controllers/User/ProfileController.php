@@ -4,20 +4,12 @@ namespace Meetingg\Controllers\User;
 
 use Meetingg\Models\User;
 use Meetingg\Controllers\Auth\AuthentifiedController;
+use Meetingg\Controllers\IndexController;
 use Meetingg\Exception\PublicException;
 use Meetingg\Http\StatusCodes;
 
 class ProfileController extends AuthentifiedController
 {
-    public function index()
-    {
-        return [
-            '/profile/data',
-            '/profile/update',
-            '/profile/avatar',
-        ];
-    }
-
     public function myprofile() :? array
     {
         $user = $this->getDI()->get('user');

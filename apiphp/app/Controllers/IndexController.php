@@ -8,20 +8,4 @@ namespace Meetingg\Controllers;
  */
 class IndexController extends BaseController
 {
-    /**
-     * Landing Index Action
-     *
-     * @return void
-     */
-    public function index()
-    {
-        $routes = array_map(function ($item) {
-            return $item->getPattern();
-        }, $this->router->getRoutes());
-        sort($routes);
-
-        return [
-            "routes" =>  $routes
-        ];
-    }
 }

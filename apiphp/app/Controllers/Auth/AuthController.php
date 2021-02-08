@@ -8,6 +8,7 @@ use Meetingg\Models\User;
 use Meetingg\Exception\PublicException;
 use Meetingg\Validators\LoginValidator;
 use Meetingg\Controllers\BaseController;
+use Meetingg\Validators\RegisterValidator;
 
 /**
  *  Client Auth Controller
@@ -45,6 +46,47 @@ class AuthController extends BaseController
         return [
             'token'=>
             $this->generateJWTSessionToken($user)
+        ];
+    }
+    /**
+     * Login Action
+     *
+     * @return array
+     */
+    public function register() :? array
+    {
+        $validator = new RegisterValidator();
+        $postData = $this->request->get();
+
+        $errors = $validator->validate($postData);
+
+        foreach ($errors as $error) {
+            throw new PublicException($error->getMessage());
+        }
+
+        $user = new User;
+        $user->assign($postData, [
+            'firstname',
+            'lastname',
+            'email',
+            'password',
+            'country',
+            'city',
+        ]);
+
+        // save user
+        $errors = $user->save();
+        
+        if (!$errors) {
+            foreach ($user->getMessages() as $error) {
+                throw new PublicException($error->getMessage());
+            }
+        }
+
+        
+        // return new JWT Token
+        return [
+            'message' => 'register successfully'
         ];
     }
 
