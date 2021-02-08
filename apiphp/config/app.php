@@ -29,7 +29,7 @@ $app->setEventsManager($eventsManager);
  */
 $app->before(function () use ($app) {
     $contentType = $app->request->getHeader('Content-Type');
-    $contentType = $_SERVER['CONTENT_TYPE'];
+    $contentType = $_SERVER['CONTENT_TYPE'] ?? null;
     if ($contentType === 'application/json') {
         $rawBody = $app->request->getJsonRawBody(true);
         // inject params in the request
@@ -110,6 +110,7 @@ $app->error(
                     'code'    => $codeError,
                     'status'  => 'error',
                     'message' => $e->getMessage(),
+                    'trace'   => $e->getTrace()
                 ],
                 (property_exists(get_class($e), 'data') ? $e->getData() : [])
             )

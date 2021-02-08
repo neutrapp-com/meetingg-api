@@ -11,6 +11,7 @@ $collection->setPrefix('/meeting');
 
 $collection
 // getters
+    ->get("/", "index", "public")
     ->get("/{id}", "data")
     ->get("/upcoming", "upcoming")
     ->get("/recorded", "recorded")

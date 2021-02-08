@@ -25,10 +25,11 @@ class AuthMiddleware implements MiddlewareInterface
     public function beforeExecuteRoute(Event $event, Micro $app)
     {
         $authorizeExceptions = [
-            'index', 'login', 'register', 'forgetpassword'
+            'index', 'login', 'register', 'forgetpassword', 'public'
         ];
         
         $routeName = $this->getRouteName($app);
+
         if (!in_array($routeName, $authorizeExceptions)) {
             $authorization = $this->authorize($app);
             

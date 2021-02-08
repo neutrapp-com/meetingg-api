@@ -23,8 +23,8 @@ class StatusCodesTest extends AbstractUnitTest
     }
 
     /**
-       * @dataProvider providerIsError
-       */
+     * @dataProvider providerIsError
+     */
     public function testIsError($code, $expected)
     {
         $instanceStatusCode = new StatusCodes();
@@ -32,14 +32,20 @@ class StatusCodesTest extends AbstractUnitTest
     }
 
     /**
-         * @dataProvider providerHaveBody
-         */
+     * @dataProvider providerHaveBody
+     */
     public function testCanHaveBody($code, $expected)
     {
         $instanceStatusCode = new StatusCodes();
         $this->assertSame($expected, $instanceStatusCode->canHaveBody($code));
     }
 
+    public function testParseCode() : void
+    {
+        $this->assertSame(StatusCodes::parseCode(200), 200);
+        
+        $this->assertSame(StatusCodes::parseCode(8888), StatusCodes::parseCode(9999));
+    }
 
     public static function providerMessageForCode(): array
     {

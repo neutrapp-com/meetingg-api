@@ -2,6 +2,8 @@
 
 namespace Meetingg\Models;
 
+use DateTime;
+use DateTimeZone;
 use Phalcon\Mvc\Model;
 use Meetingg\Interfaces\SharedConstInterface;
 
@@ -33,11 +35,11 @@ class BaseModel extends Model implements SharedConstInterface
     }
     
     /**
-     * Before Save , Save microtime into database
+     * Before update , Save microtime into database
      *r
      * @return void
      */
-    public function beforeSave() : void
+    public function beforeUpdate() : void
     {
         $selfClass = get_class($this);
 
@@ -91,9 +93,11 @@ class BaseModel extends Model implements SharedConstInterface
     /**
      * Get Time in seconds
      */
-    public static function getTime() : int
+    public static function getTime() :? string
     {
-        return microtime(true);
+        $date = new DateTime('now');
+
+        return substr($date->format('Y-m-d H:i:s.u'), 0, 22);
     }
 
     /**

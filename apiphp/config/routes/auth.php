@@ -10,11 +10,12 @@ $collection->setPrefix('/auth');
 
 $collection
 // getters
-        ->get("/session", "session")
-// actions
-        ->post("/login", "login", "login")
-        ->post("/register", "register", "register")
-        ->post("/forgetpassword", "forgetpassword", "forgetpassword");
+    ->get("/", "index", "public")
+    ->get("/session", "session")
+    // actions
+    ->post("/login", "login", "login")
+    ->post("/register", "register", "register")
+    ->post("/forgetpassword", "forgetpassword", "forgetpassword");
 
 
 

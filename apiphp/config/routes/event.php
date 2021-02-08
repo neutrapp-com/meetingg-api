@@ -11,9 +11,10 @@ $collection->setPrefix('/event');
 
 $collection
 // getters
+    ->get("/", "index", "public")
     ->get("/{id}", "data")
 // actions
-    ->post("/new", "new")
+    ->post("/new", "index")
     ->post("/{id}/move", "move")
     ->post("/{id}/update", "update")
     ->post("/{id}/delete", "delete")

@@ -6,6 +6,7 @@ use Phalcon\Security;
 use Phalcon\Validation;
 use Phalcon\Validation\Validator\Email as EmailValidator;
 use Phalcon\Validation\Validator\Regex;
+use Phalcon\Validation\Validator\Uniqueness;
 
 class User extends BaseModel
 {
@@ -119,6 +120,16 @@ class User extends BaseModel
             )
         );
 
+        $validator->add(
+            'email',
+            new Uniqueness(
+                [
+                    'model' => new self,
+                    'message' => 'The :field already used',
+                ]
+            )
+        );
+
         return $this->validate($validator);
     }
 
@@ -129,6 +140,7 @@ class User extends BaseModel
     {
         $this->setDefaultSchema();
         $this->setSource("user");
+        
         $this->hasMany('id', 'Meetingg\Models\Contact', 'target_id', ['alias' => 'Contact']);
         $this->hasMany('id', 'Meetingg\Models\Contact', 'user_id', ['alias' => 'Contact']);
         $this->hasMany('id', 'Meetingg\Models\Discussionusers', 'user_id', ['alias' => 'Discussionusers']);
@@ -139,6 +151,30 @@ class User extends BaseModel
         $this->hasMany('id', 'Meetingg\Models\Notification', 'sender_id', ['alias' => 'Notification']);
         $this->hasMany('id', 'Meetingg\Models\Notification', 'user_id', ['alias' => 'Notification']);
         $this->belongsTo('invite_id', 'Meetingg\Models\Invite', 'id', ['alias' => 'Invite']);
+
+        $this->keepSnapshots(true);
+    }
+
+    /**
+     * before Create
+     */
+    public function beforeCreate() : void
+    {
+        parent::beforeCreate();
+
+        $this->password = self::hashPassword($this->password);
+    }
+    
+    /**
+     * Before Save
+     */
+    public function beforeUpdate() : void
+    {
+        parent::beforeUpdate();
+
+        if ($this->hasChanged('password')) {
+            $this->password = self::hashPassword($this->password);
+        }
     }
 
     /**
