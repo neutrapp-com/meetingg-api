@@ -2,23 +2,93 @@
 declare(strict_types=1);
 namespace Meetingg\Controllers\User;
 
+use Phalcon\Http\Response;
+
 use Meetingg\Models\User;
+use Meetingg\Http\StatusCodes;
 use Meetingg\Controllers\Auth\AuthentifiedController;
 use Meetingg\Controllers\IndexController;
 use Meetingg\Exception\PublicException;
-use Meetingg\Http\StatusCodes;
+use Meetingg\Validators\ProfileValidator;
 
 class ProfileController extends AuthentifiedController
 {
-    public function myprofile() :? array
+
+    /**
+     * Slef User Profile
+     *
+     * @return array|null
+     */
+    public function myProfile() :? array
     {
-        $user = $this->getDI()->get('user');
         return [
-            'data' => $user->getProfile()
+            'data' => $this->user->getProfile()
         ];
     }
 
-    public function userprofile(string $userId) :? array
+    /**
+     * Self User avatar
+     *
+     * @return Response
+     */
+    public function getAvatar() : Response
+    {
+        $this->response->redirect($this->getUser()->avatar);
+        return $this->response->send();
+    }
+
+    /**
+     * Self Update Profile
+     *
+     * @return array
+     */
+    public function updateProfile() : array
+    {
+        $postData = $this->request->get();
+
+        $validator = new ProfileValidator();
+
+        $errors = $validator->validate($postData);
+
+        foreach ($errors as $error) {
+            throw new PublicException($error->getMessage());
+        }
+        
+        $user = $this->getUser();
+
+        $user->assign($postData, [
+            'firstname',
+            'lastname',
+            'email',
+            'password',
+            'country',
+            'city',
+        ]);
+
+        // save user
+        $errors = $user->save();
+        
+        if (!$errors) {
+            foreach ($user->getMessages() as $error) {
+                throw new PublicException($error->getMessage());
+            }
+        }
+
+        
+        // return new JWT Token
+        return [
+            'message' => 'profile updated successfully'
+        ];
+    }
+
+
+    /**
+     * Get any user profile, permission requried
+     *
+     * @param string $userId
+     * @return array|null
+     */
+    public function userProfile(string $userId) :? array
     {
         $this->expectPermission('admin.user.profile');
         

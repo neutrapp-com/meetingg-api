@@ -233,7 +233,7 @@ class User extends BaseModel
 
         $userData = [];
         foreach ($this->toArray() as $key => $val) {
-            if (in_array($key, $includeInputs) && !in_array($excludeFields)) {
+            if (in_array($key, $includeInputs) && !in_array($key, $excludeFields)) {
                 $userData[$key] = $val;
             }
         }
