@@ -3,6 +3,8 @@ declare(strict_types=1);
 
 namespace Meetingg\Controllers\Auth;
 
+use Meetingg\Models\User;
+
 use Meetingg\Http\StatusCodes;
 use Meetingg\Exception\PublicException;
 use Meetingg\Controllers\BaseController;
@@ -12,6 +14,19 @@ use Meetingg\Controllers\BaseController;
  */
 class AuthentifiedController extends BaseController
 {
+    protected User $user;
+
+
+    /**
+     * On Construct , Bind User into controller
+     *
+     * @return void
+     */
+    public function onConstruct() : void
+    {
+        $this->user = $this->getDI()->get('user');
+    }
+
     /**
      * Permissions expecting to do an action
      *
@@ -30,5 +45,13 @@ class AuthentifiedController extends BaseController
         }
 
         return true;
+    }
+
+    /**
+     * Get the value of user
+     */
+    public function getUser() : User
+    {
+        return $this->user;
     }
 }
