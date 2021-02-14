@@ -5,8 +5,13 @@ namespace Meetingg\Models;
 use Phalcon\Security;
 use Phalcon\Validation;
 use Phalcon\Validation\Validator\Email as EmailValidator;
+use Phalcon\Validation\Validator\StringLength;
 use Phalcon\Validation\Validator\Regex;
+use Phalcon\Validation\Validator\PresenceOf;
 use Phalcon\Validation\Validator\Uniqueness;
+use Phalcon\Validation\Validator\InclusionIn;
+
+use Meetingg\Library\Country;
 
 class User extends BaseModel
 {
@@ -111,24 +116,106 @@ class User extends BaseModel
         $validator = new Validation();
 
         $validator->add(
+            'firstname',
+            new StringLength([
+                'max' => 26,
+                'min' => 2,
+                'messageMaximum' => 'The :field is too long',
+                'messageMinimum' => 'The :field is too short',
+            ])
+        );
+
+        $validator->add(
+            'lastname',
+            new StringLength([
+                'max' => 26,
+                'min' => 2,
+                'messageMaximum' => 'The :field is too long',
+                'messageMinimum' => 'The :field is too short',
+            ])
+        );
+
+        $validator->add(
+            'country',
+            new InclusionIn([
+                'domain' => Country::allKeys(),
+                'message' => 'Invalid country',
+            ])
+        );
+            
+        $validator->add(
+            'city',
+            new StringLength([
+                'max' => 30,
+                'min' => 2,
+                'messageMaximum' => 'The :field is too long',
+                'messageMinimum' => 'The :field is too short',
+                'allowEmpty' =>true
+            ])
+        );
+
+        $validator->add(
+            'city',
+            new Regex([
+                'pattern' => "/^[a-zA-Z]+(?:[\s-][a-zA-Z]+)*$/",
+                'message' => 'The :field is invalid',
+                'allowEmpty' =>true,
+            ])
+        );
+        
+        $validator->add(
             'email',
-            new EmailValidator(
+            new PresenceOf(
                 [
-                    'model'   => $this,
-                    'message' => 'Please enter a correct email address',
+                    'message' => 'The e-mail is required',
                 ]
             )
         );
 
         $validator->add(
             'email',
+            new EmailValidator(
+                [
+                    'message' => 'The e-mail is not valid',
+                ]
+            )
+        );
+
+
+        $validator->add(
+            'email',
             new Uniqueness(
                 [
-                    'model' => new self,
+                    'model' => $this,
                     'message' => 'The :field already used',
                 ]
             )
         );
+
+        $validator->add(
+            'password',
+            new PresenceOf(
+                [
+                    'message' => 'The password is required',
+                    'allowEmpty'=> true
+                ]
+            )
+        );
+
+        $validator->add(
+            'password',
+            new StringLength(
+                [
+                    'max' => 40,
+                    'min' => 5,
+                    'messageMaximum' => 'The :field is too long',
+                    'messageMinimum' => 'The :field is too short',
+                    'allowEmpty'=> true
+                ]
+            )
+        );
+
+        
 
         return $this->validate($validator);
     }
