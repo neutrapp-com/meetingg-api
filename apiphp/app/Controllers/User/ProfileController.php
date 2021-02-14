@@ -6,10 +6,9 @@ use Phalcon\Http\Response;
 
 use Meetingg\Models\User;
 use Meetingg\Http\StatusCodes;
-use Meetingg\Controllers\Auth\AuthentifiedController;
-use Meetingg\Controllers\IndexController;
 use Meetingg\Exception\PublicException;
-use Meetingg\Validators\ProfileValidator;
+use Meetingg\Validators\PasswordValidator;
+use Meetingg\Controllers\Auth\AuthentifiedController;
 
 class ProfileController extends AuthentifiedController
 {
@@ -20,7 +19,6 @@ class ProfileController extends AuthentifiedController
         'firstname',
         'lastname',
         'email',
-        'password',
         'country',
         'city',
     ];
@@ -64,6 +62,29 @@ class ProfileController extends AuthentifiedController
         });
 
         $user->assign($postData, $items);
+
+        // password changement
+        if (isset($postData['new_password'])) {
+            $new_password = $postData['new_password'];
+
+            if (isset($postData['password'])) {
+                $password = $postData['password'];
+                
+                // Verify if password matched user
+                if (!$user->validatePassword($password)) {
+                    throw new PublicException("Wrong password !");
+                }
+
+                $passwordValidator = new PasswordValidator();
+                if ($passwordValidator->validate(['password'=> $new_password])) {
+                    foreach ($passwordValidator->getMessages() as $msg) {
+                        throw new PublicException($msg->getMessage());
+                    }
+                }
+
+                $user->password = $new_password;
+            }
+        }
 
         // save user
         $errors = $user->update();

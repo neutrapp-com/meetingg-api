@@ -192,31 +192,6 @@ class User extends BaseModel
             )
         );
 
-        $validator->add(
-            'password',
-            new PresenceOf(
-                [
-                    'message' => 'The password is required',
-                    'allowEmpty'=> true
-                ]
-            )
-        );
-
-        $validator->add(
-            'password',
-            new StringLength(
-                [
-                    'max' => 40,
-                    'min' => 5,
-                    'messageMaximum' => 'The :field is too long',
-                    'messageMinimum' => 'The :field is too short',
-                    'allowEmpty'=> true
-                ]
-            )
-        );
-
-        
-
         return $this->validate($validator);
     }
 
