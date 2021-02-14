@@ -30,10 +30,10 @@ class RegisterValidatorTest extends AbstractUnitTest
         return [
             [[], 9],
             [['email'=>'','password'=>''], 7],
-            [['email'=>'invalideemail','password'=>''], 6],
+            [['email'=>'invalidemail','password'=>''], 6],
             [['email'=>'test@gmail.com','password'=>''], 5],
             [['email'=>'test@gmail.com','password'=>'password'], 4],
-            [['email'=>'test@gmail.com','password'=>'password','country'=>'invalide','city'=>''], 4],
+            [['email'=>'test@gmail.com','password'=>'password','country'=>'invalid','city'=>''], 4],
             [['email'=>'test@gmail.com','password'=>'password','country'=>'FR','city'=>''], 3],
             [['email'=>'test@gmail.com','password'=>'password','country'=>'FR','city'=>'Paris'], 3],
         ];

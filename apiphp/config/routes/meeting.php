@@ -1,19 +1,19 @@
 <?php
 
 use Phalcon\Mvc\Micro\Collection;
-use Meetingg\Controllers\IndexController;
+use Meetingg\Controllers\Meeting\MeetingController;
 
 $collection = new Collection();
 
-$collection->setHandler(IndexController::class, true);
+$collection->setHandler(MeetingController::class, true);
 
 $collection->setPrefix('/meeting');
 
 $collection
 // getters
-    ->get("/", "index", "public")
-    ->get("/{id}", "data")
-    ->get("/upcoming", "upcoming")
+    ->get("/", "index", "public")               // ok
+    ->get("/{id}", "getMeeting")                // ok  #toupgrade
+    ->get("/upcoming", "upcoming")              // #todo
     ->get("/recorded", "recorded")
 // actions
     ->post("/new", "new")

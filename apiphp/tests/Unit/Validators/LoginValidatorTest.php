@@ -30,7 +30,7 @@ class LoginValidatorTest extends AbstractUnitTest
         return [
             [[], 4],
             [['email'=>'','password'=>''], 4],
-            [['email'=>'invalideemail','password'=>''], 3],
+            [['email'=>'invalidemail','password'=>''], 3],
             [['email'=>'test@gmail.com','password'=>''], 2],
             [['email'=>'test@gmail.com','password'=>'password'], 0],
         ];

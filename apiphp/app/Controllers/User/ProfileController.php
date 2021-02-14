@@ -113,10 +113,6 @@ class ProfileController extends AuthentifiedController
     {
         $this->expectPermission('admin.user.profile');
         
-        if (!User::validUUID($userId)) {
-            throw new PublicException("Invalide id", StatusCodes::HTTP_BAD_REQUEST);
-        }
-            
         $user = User::findFirstById($userId);
         
         if (!$user) {
@@ -124,5 +120,23 @@ class ProfileController extends AuthentifiedController
         }
             
         return ['user'=> $user->getProfile()];
+    }
+
+
+    /**
+     * Update Profile Avatar
+     *
+     * @return array|null
+     */
+    public function updateAvatar() :? array
+    {
+        $this->expectPermission('user.update.avatar');
+
+        # TODO
+        # Post File & Save File & Update User avatar url
+
+        return [
+            'avatar' => $this->getUser()->avatar
+        ];
     }
 }

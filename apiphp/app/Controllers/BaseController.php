@@ -42,4 +42,26 @@ class BaseController extends Controller implements SharedConstInterface
 
         return $routes;
     }
+
+    /**
+     * Filter Data & return allowed fields data
+     *
+     * @param array $dataArray
+     * @param array $excludes
+     * @param array $includes
+     * @return array|null
+     */
+    public static function filterData(array $dataArray, array $excludes = [], array $includes = []) :? array
+    {
+        if (count($includes)) {
+            return array_filter($dataArray, function ($key) use ($includes) {
+                return in_array($key, $includes);
+            }, ARRAY_FILTER_USE_KEY);
+        }
+
+        
+        return array_filter($dataArray, function ($key) use ($excludes) {
+            return !in_array($key, $excludes);
+        }, ARRAY_FILTER_USE_KEY);
+    }
 }

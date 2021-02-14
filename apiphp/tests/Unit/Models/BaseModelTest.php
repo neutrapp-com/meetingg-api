@@ -123,7 +123,7 @@ class BaseModelTest extends AbstractUnitTest
             [ 'cc60891b-eb05-426b-9693-7df81fadf7a5' , true  ],
             [ 'a179cea0-68e3-11eb-9439-0242ac130002' , true  ],
             [ '0 259 458 694'  , false ],
-            [ 'this is an invalide uuid'  , false ],
+            [ 'this is an invalid uuid'  , false ],
             [ '1-2-3-4-5-6-7-8-9-10-12'  , false ],
         ];
     }
