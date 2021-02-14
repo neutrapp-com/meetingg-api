@@ -3,7 +3,8 @@
 namespace Meetingg\Models;
 
 use DateTime;
-use DateTimeZone;
+use Meetingg\Exception\PublicException;
+use Meetingg\Http\StatusCodes;
 use Phalcon\Mvc\Model;
 use Meetingg\Interfaces\SharedConstInterface;
 
@@ -12,6 +13,27 @@ class BaseModel extends Model implements SharedConstInterface
     protected $client_ip = null;
     protected $schemaName = "dma";
 
+
+    /**
+     * Find First By Id : Validate UUID
+     *
+     * @param string $id
+     * @return \Phalcon\Mvc\ModelInterface|null
+     */
+    public static function findFirstById(string $id) :? \Phalcon\Mvc\ModelInterface
+    {
+        if (!self::validUUID($id)) {
+            throw new PublicException("invalid id", StatusCodes::HTTP_BAD_REQUEST);
+        }
+        
+        return parent::findFirstById($id);
+    }
+
+    /**
+     * Set Default Schema Name
+     *
+     * @return void
+     */
     public function setDefaultSchema() : void
     {
         $this->setSchema($this->getDI()->config->database->schema ?? "mgg");

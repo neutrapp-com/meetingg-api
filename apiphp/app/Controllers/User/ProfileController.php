@@ -113,10 +113,6 @@ class ProfileController extends AuthentifiedController
     {
         $this->expectPermission('admin.user.profile');
         
-        if (!User::validUUID($userId)) {
-            throw new PublicException("Invalide id", StatusCodes::HTTP_BAD_REQUEST);
-        }
-            
         $user = User::findFirstById($userId);
         
         if (!$user) {
