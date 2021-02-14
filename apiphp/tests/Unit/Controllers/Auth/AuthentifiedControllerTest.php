@@ -10,9 +10,4 @@ use Meetingg\Controllers\Auth\AuthentifiedController;
 
 class AuthentifiedControllerTest extends AbstractUnitTest
 {
-    public function testBaseInstance()
-    {
-        $instanceController = new AuthentifiedController();
-        $this->assertInstanceOf(BaseController::class, $instanceController);
-    }
 }

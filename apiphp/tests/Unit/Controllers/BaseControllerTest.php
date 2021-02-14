@@ -10,10 +10,19 @@ use Phalcon\Mvc\Controller;
 
 class BaseControllerTest extends AbstractUnitTest
 {
-    public function testAplusB()
+    public function testBaseInstance()
     {
         $instanceController = new BaseController();
 
         $this->assertTrue($instanceController instanceof Controller);
+    }
+
+    public function testIndex()
+    {
+        $instanceController = new BaseController();
+
+
+        $this->assertIsArray($instanceController->index());
+        $this->assertArrayHasKey('routes', $instanceController->index());
     }
 }
