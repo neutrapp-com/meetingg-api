@@ -13,7 +13,18 @@ use Meetingg\Validators\ProfileValidator;
 
 class ProfileController extends AuthentifiedController
 {
-
+    /**
+     * Allowed fields to update
+     */
+    const UPDATE_FIELDS = [
+        'firstname',
+        'lastname',
+        'email',
+        'password',
+        'country',
+        'city',
+    ];
+    
     /**
      * Slef User Profile
      *
@@ -48,14 +59,7 @@ class ProfileController extends AuthentifiedController
 
         $user = $this->getUser();
 
-        $items = array_filter([
-            'firstname',
-            'lastname',
-            'email',
-            'password',
-            'country',
-            'city',
-        ], function ($item) use ($postData) {
+        $items = array_filter($this::UPDATE_FIELDS, function ($item) use ($postData) {
             return !empty($postData[$item]);
         });
 
