@@ -24,7 +24,9 @@ class AuthentifiedController extends BaseController
      */
     public function onConstruct() : void
     {
-        $this->user = $this->getDI()->get('user');
+        if ($this->getDI()->has(self::AUTH_KEY)) {
+            $this->user = $this->getDI()->get(self::AUTH_KEY);
+        }
     }
 
     /**
@@ -37,7 +39,7 @@ class AuthentifiedController extends BaseController
      */
     protected function expectPermission(string $permissionId) :? bool
     {
-        $userPermissions = $this->getDI()->get('user')->permissions ?: '["test"]';
+        $userPermissions = $this->getDI()->get(self::AUTH_KEY)->permissions ?: '["test"]';
         $userPermissions = json_decode($userPermissions);
         
         if (!in_array($permissionId, $userPermissions)) {

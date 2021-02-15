@@ -28,4 +28,7 @@ interface SharedConstInterface
     const DATE_FORMAT = "Y-m-d";
     const TIME_FORMAT = "H:i:s";
     const DATE_TIME_FORMAT = "y-m-d H:i:s";
+
+    // services
+    const AUTH_KEY = 'user';
 }
