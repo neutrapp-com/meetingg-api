@@ -8,13 +8,24 @@ use Meetingg\Models\User;
 use Meetingg\Exception\PublicException;
 use Meetingg\Validators\LoginValidator;
 use Meetingg\Controllers\BaseController;
+use Meetingg\Http\StatusCodes;
 use Meetingg\Validators\RegisterValidator;
+use Lcobucci\JWT\Token;
 
 /**
  *  Client Auth Controller
  */
 class AuthController extends BaseController
 {
+    /** @var REMEMBER_CLAIM */
+    const REMEMBER_CLAIM = 'rmb';
+
+    /** @var TOKEN_EXPIRE_TIME */
+    const TOKEN_EXPIRE_TIME = "+24 hours";
+
+    /** @var TOKEN_EXPIRE_TIME_REMEMBER */
+    const TOKEN_EXPIRE_TIME_REMEMBER = "+15 days";
+
     /**
      * Login Action
      *
@@ -42,12 +53,50 @@ class AuthController extends BaseController
             throw new PublicException("Invalid credentials.");
         }
 
+        // remember me
+        $remember = isset($postData['remember']);
+
         // return new JWT Token
         return [
-            'token'=>
-            $this->generateJWTSessionToken($user)
+            'data' => array_merge(
+                [
+                    'token'=>
+                    $this->generateJWTSessionToken($user, $remember ? self::TOKEN_EXPIRE_TIME : self::TOKEN_EXPIRE_TIME_REMEMBER, $remember ? [self::REMEMBER_CLAIM => 1] : [])->toString(),
+                ],
+                $user->getProfile()
+            )
+            ];
+    }
+    
+
+    /**
+     * Session
+     */
+    public function session() :? array
+    {
+        if (false === $this->getDi()->has('user')) {
+            throw new PublicException("Please authorize with valid API token.");
+        }
+
+        $user = $this->getDi()->get('user');
+
+        // remember me
+        $remember = $user->getSessionToken()->claims()->get(self::REMEMBER_CLAIM);
+
+        if ($remember) {
+            // expiration
+            $expiration = $user->getSessionToken()->claims()->get('exp');
+        
+            if ($expiration > time() && $expiration <= time() + 60 * 60 * 2) {
+                $user->setSessionToken($this->generateJWTSessionToken($user, self::TOKEN_EXPIRE_TIME_REMEMBER, [self::REMEMBER_CLAIM => 1]));
+            }
+        }
+
+        return [
+            'data' => array_merge(['token'=> $user->getSessionToken()->toString()], $user->getProfile())
         ];
     }
+
     /**
      * Login Action
      *
@@ -70,7 +119,7 @@ class AuthController extends BaseController
             'lastname',
             'email',
             'password',
-            'country',
+            'country_id',
             'city',
         ]);
 
@@ -79,7 +128,7 @@ class AuthController extends BaseController
         
         if (!$errors) {
             foreach ($user->getMessages() as $error) {
-                throw new PublicException($error->getMessage());
+                throw new PublicException($error->getMessage(), StatusCodes::HTTP_UNAUTHORIZED);
             }
         }
 
@@ -90,20 +139,24 @@ class AuthController extends BaseController
         ];
     }
 
+    public function reset() :? array
+    {
+        return ['ok'];
+    }
+
     /**
      * Create New JWT Session Token
      *
      * @param User $user
      * @return string
      */
-    public function generateJWTSessionToken(User $user) : string
+    public function generateJWTSessionToken(User $user, string $expire = "+24 hours", array $claims = [], array $headers = []) :? Token
     {
         $appConfig =  $this->getDI()->getConfig()->jwt;
         $config = $this->getDI()->getShared('jwt')["config"];
         $now   = new DateTimeImmutable();
-        $expire = "+1 hours";
 
-        return $config->builder()
+        $generatedToken =  $config->builder()
             // Configures the issuer (iss claim)
             ->issuedBy($appConfig->url)
             // Configures the audience (aud claim)
@@ -115,11 +168,18 @@ class AuthController extends BaseController
             // Configures the expiration time of the token (exp claim)
             ->expiresAt($now->modify($expire))
             // Configures a new claim, called "uid"
-            ->withClaim('uid', $user->id)
-            // user info
-            ->withHeader('fullname', $user->firstname . " " .$user->lastname)
+            ->withClaim('uid', $user->id);
+
+        foreach ($claims as $key => $val) {
+            $generatedToken->withClaim($key, $val);
+        }
+
+        foreach ($headers as $key => $val) {
+            $generatedToken->withHeader($key, $val);
+        }
+        
+        return $generatedToken
             // Builds a new token
-            ->getToken($config->signer(), $config->signingKey())
-            ->toString();
+            ->getToken($config->signer(), $config->signingKey());
     }
 }

@@ -22,7 +22,7 @@ class BaseController extends Controller implements SharedConstInterface
         
         return [
             'routes'=> array_values(array_filter(self::getRoutes($this), function ($item) use ($matched) {
-                return strpos($item, $matched) !== false;
+                return strpos(strval($item), $matched) !== false;
             }))
         ];
     }
@@ -36,7 +36,16 @@ class BaseController extends Controller implements SharedConstInterface
     public static function getRoutes(BaseController $controller) :? array
     {
         $routes = array_map(function ($item) {
-            return $item->getPattern();
+            $route = $item->getPattern();
+            $routeParts = explode('/', $route) ?? [];
+            foreach ($routeParts as $i => $v) {
+                if (strpos(strval($v), ':') !== false && strpos(strval($v), '{') !== false) {
+                    $partArray = explode('{', explode(':', $v)[0])[1];
+                    $routeParts[$i] = ":$partArray";
+                }
+            }
+
+            return  join('/', $routeParts) ?? $route;
         }, $controller ->router->getRoutes());
         sort($routes);
 

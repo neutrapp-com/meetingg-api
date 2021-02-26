@@ -10,7 +10,22 @@ use Meetingg\Interfaces\SharedConstInterface;
 
 class BaseModel extends Model implements SharedConstInterface
 {
+
+    /** @var ID_VALIDATOR */
+    const ID_VALIDATOR = true;
+
+    /**
+     * Client IP
+     *
+     * @var string
+     */
     protected $client_ip = null;
+
+    /**
+     * Default Schema Name
+     *
+     * @var string
+     */
     protected $schemaName = "dma";
 
 
@@ -22,7 +37,7 @@ class BaseModel extends Model implements SharedConstInterface
      */
     public static function findFirstById(string $id) :? \Phalcon\Mvc\ModelInterface
     {
-        if (!self::validUUID($id)) {
+        if (true === get_called_class()::ID_VALIDATOR && false === self::validUUID($id)) {
             throw new PublicException("invalid id", StatusCodes::HTTP_BAD_REQUEST);
         }
         
@@ -36,7 +51,7 @@ class BaseModel extends Model implements SharedConstInterface
      */
     public function setDefaultSchema() : void
     {
-        $this->setSchema($this->getDI()->config->database->schema ?? "mgg");
+        $this->setSchema($this->getDI()->config->database->schema ?? "dma");
     }
 
     /**
