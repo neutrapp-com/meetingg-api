@@ -2,16 +2,16 @@
 
 namespace Meetingg\Models;
 
+use Meetingg\Models\Company\User as CompanyUser;
+use Lcobucci\JWT\Token;
 use Phalcon\Security;
 use Phalcon\Validation;
 use Phalcon\Validation\Validator\Email as EmailValidator;
-use Phalcon\Validation\Validator\StringLength;
 use Phalcon\Validation\Validator\Regex;
 use Phalcon\Validation\Validator\PresenceOf;
 use Phalcon\Validation\Validator\Uniqueness;
+use Phalcon\Validation\Validator\StringLength;
 use Phalcon\Validation\Validator\InclusionIn;
-
-use Meetingg\Library\Country;
 
 class User extends BaseModel
 {
@@ -98,6 +98,12 @@ class User extends BaseModel
      *
      * @var string
      */
+    public $country_id;
+
+    /**
+     *
+     * @var string
+     */
     public $created_at;
 
     /**
@@ -105,6 +111,12 @@ class User extends BaseModel
      * @var string
      */
     public $updated_at;
+
+    /**
+     *
+     * @var Token
+     */
+    public Token $sessionToken;
 
     /**
      * Validations and business logic
@@ -115,52 +127,35 @@ class User extends BaseModel
     {
         $validator = new Validation();
 
+        
         $validator->add(
             'firstname',
             new StringLength([
-                'max' => 26,
+                'max' => 50,
                 'min' => 2,
-                'messageMaximum' => 'The :field is too long',
-                'messageMinimum' => 'The :field is too short',
+                'messageMaximum' => 'The First Name is too long',
+                'messageMinimum' => 'The First Name is too short',
             ])
         );
 
         $validator->add(
             'lastname',
             new StringLength([
-                'max' => 26,
+                'max' => 50,
                 'min' => 2,
-                'messageMaximum' => 'The :field is too long',
-                'messageMinimum' => 'The :field is too short',
+                'messageMaximum' => 'The Last name is too long',
+                'messageMinimum' => 'The Last name is too short',
             ])
         );
 
         $validator->add(
-            'country',
-            new InclusionIn([
-                'domain' => Country::allKeys(),
-                'message' => 'Invalid country',
-            ])
-        );
-            
-        $validator->add(
-            'city',
-            new StringLength([
-                'max' => 30,
-                'min' => 2,
-                'messageMaximum' => 'The :field is too long',
-                'messageMinimum' => 'The :field is too short',
-                'allowEmpty' =>true
-            ])
-        );
-
-        $validator->add(
-            'city',
-            new Regex([
-                'pattern' => "/^[a-zA-Z]+(?:[\s-][a-zA-Z]+)*$/",
-                'message' => 'The :field is invalid',
-                'allowEmpty' =>true,
-            ])
+            'email',
+            new EmailValidator(
+                [
+                    'model'   => $this,
+                    'message' => 'Please enter a correct email address',
+                ]
+            )
         );
         
         $validator->add(
@@ -192,6 +187,35 @@ class User extends BaseModel
             )
         );
 
+        $validator->add(
+            'city',
+            new StringLength([
+                'max' => 30,
+                'min' => 2,
+                'messageMaximum' => 'The :field is too long',
+                'messageMinimum' => 'The :field is too short',
+                'allowEmpty' =>true
+            ])
+        );
+
+        $validator->add(
+            'city',
+            new Regex([
+                'pattern' => "/^[a-zA-Z]+(?:[\s-][a-zA-Z]+)*$/",
+                'message' => 'The :field is invalid',
+                'allowEmpty' =>true,
+            ])
+        );
+
+ 
+        $validator->add(
+            'country_id',
+            new InclusionIn([
+                'domain' => Country::allKeys(),
+                'message' => 'Invalid country',
+            ])
+        );
+
         return $this->validate($validator);
     }
 
@@ -202,18 +226,29 @@ class User extends BaseModel
     {
         $this->setDefaultSchema();
         $this->setSource("user");
-        
-        $this->hasMany('id', 'Meetingg\Models\Contact', 'target_id', ['alias' => 'Contact']);
-        $this->hasMany('id', 'Meetingg\Models\Contact', 'user_id', ['alias' => 'Contact']);
-        $this->hasMany('id', 'Meetingg\Models\Discussionusers', 'user_id', ['alias' => 'Discussionusers']);
-        $this->hasMany('id', 'Meetingg\Models\Group', 'user_id', ['alias' => 'Group']);
-        $this->hasMany('id', 'Meetingg\Models\Invite', 'user_id', ['alias' => 'Invite']);
-        $this->hasMany('id', 'Meetingg\Models\Meetingusers', 'user_id', ['alias' => 'Meetingusers']);
-        $this->hasMany('id', 'Meetingg\Models\Message', 'user_id', ['alias' => 'Message']);
-        $this->hasMany('id', 'Meetingg\Models\Notification', 'sender_id', ['alias' => 'Notification']);
-        $this->hasMany('id', 'Meetingg\Models\Notification', 'user_id', ['alias' => 'Notification']);
-        $this->belongsTo('invite_id', 'Meetingg\Models\Invite', 'id', ['alias' => 'Invite']);
 
+        /**
+         * User CompanyUser
+         */
+        $this->hasMany('id', 'Meetingg\Models\Company\User', 'user_id', ['alias' => 'CompanyUser']);
+        
+        /**
+         * User Companies
+         */
+        $this->hasManyToMany(
+            'id',
+            CompanyUser::class,
+            'user_id',
+            'company_id',
+            Company::class,
+            'id',
+            ['alias' => 'Companies']
+        );
+
+        /**
+         * Keepsnapshots to detect if password changed,
+         * to crypt it
+         */
         $this->keepSnapshots(true);
     }
 
@@ -224,6 +259,7 @@ class User extends BaseModel
     {
         parent::beforeCreate();
 
+        $this->username = self::getRandomUsername();
         $this->password = self::hashPassword($this->password);
     }
     
@@ -238,29 +274,6 @@ class User extends BaseModel
             $this->password = self::hashPassword($this->password);
         }
     }
-
-    /**
-     * Allows to query a set of records that match the specified conditions
-     *
-     * @param mixed $parameters
-     * @return User[]|User|\Phalcon\Mvc\Model\ResultSetInterface
-     */
-    public static function find($parameters = null): \Phalcon\Mvc\Model\ResultsetInterface
-    {
-        return parent::find($parameters);
-    }
-
-    /**
-     * Allows to query the first record that match the specified conditions
-     *
-     * @param mixed $parameters
-     * @return User|\Phalcon\Mvc\Model\ResultInterface
-     */
-    public static function findFirst($parameters = null) : ? \Phalcon\Mvc\ModelInterface
-    {
-        return parent::findFirst($parameters);
-    }
-
 
     /**
      * Validate Password
@@ -285,11 +298,16 @@ class User extends BaseModel
 
     /**
      * Get User Profile
+     *
+     * @param array $excludeFields
+     * @param array $customIncludes
+     * @param boolean $onlyCustom
+     * @return array
      */
-    public function getProfile(array $excludeFields = [], array $customIncludes = []) : array
+    public function getProfile(array $excludeFields = [], array $customIncludes = [], bool $onlyCustom = false) : array
     {
-        $includeInputs = array_merge(
-            ['id','firstname','lastname','city','country','email','avatar','phone','fax','status','created_at','updated_at'],
+        $includeInputs = true === $onlyCustom ? $customIncludes : array_merge(
+            ['id','firstname','lastname','city','country_id','email','avatar','fax', 'status','created_at','updated_at'],
             $customIncludes
         );
 
@@ -299,6 +317,41 @@ class User extends BaseModel
                 $userData[$key] = $val;
             }
         }
+        
         return $userData;
+    }
+
+    /**
+     * Generate random user
+     *
+     * @return string
+     */
+    public function getRandomUsername() : string
+    {
+        return preg_replace("/[^a-z0-9]/", '', strtolower("{$this->firstname}.{$this->lastname}").rand(1000, 9999));
+    }
+
+    /**
+     * Get the value of sessionToken
+     *
+     * @return  Token|null
+     */
+    public function getSessionToken() :? Token
+    {
+        return $this->sessionToken;
+    }
+
+    /**
+     * Set the value of sessionToken
+     *
+     * @param  Token  $sessionToken
+     *
+     * @return  self
+     */
+    public function setSessionToken(Token $sessionToken) :? self
+    {
+        $this->sessionToken = $sessionToken;
+
+        return $this;
     }
 }

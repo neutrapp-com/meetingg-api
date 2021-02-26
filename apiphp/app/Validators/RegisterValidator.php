@@ -12,8 +12,6 @@ use Phalcon\Validation\Validator\InclusionIn;
 use Phalcon\Validation\Validator\StringLength;
 use Phalcon\Validation\Validator\Confirmation;
 
-use Meetingg\Library\Country;
-
 class RegisterValidator extends Validation
 {
     public function initialize()
@@ -38,13 +36,7 @@ class RegisterValidator extends Validation
             ])
         );
 
-        $this->add(
-            'country',
-            new InclusionIn([
-                'domain' => Country::allKeys(),
-                'message' => 'Invalid country',
-            ])
-        );
+        
             
         $this->add(
             'city',
@@ -109,8 +101,18 @@ class RegisterValidator extends Validation
             'cpassword',
             new Confirmation([
                 'with' => 'password',
-                'message' => 'The :field does not match confirmation',
+                'message' => 'Password does not match confirmation',
             ])
+        );
+
+        $this->add(
+            'agree',
+            new InclusionIn([
+            'domain' => [
+                1
+            ],
+            'message' => 'You must agree to the terms and conditions',
+        ])
         );
     }
 }

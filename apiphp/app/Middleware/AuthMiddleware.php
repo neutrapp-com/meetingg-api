@@ -2,11 +2,9 @@
 
 namespace Meetingg\Middleware;
 
-use Exception;
 use DateTimeZone;
 use Phalcon\Mvc\Micro;
 use Phalcon\Events\Event;
-use Phalcon\Mvc\Micro\MiddlewareInterface;
 
 use Lcobucci\Clock\SystemClock;
 use Lcobucci\JWT\Validation\Constraint\IssuedBy;
@@ -18,19 +16,13 @@ use Meetingg\Models\User;
 use Meetingg\Http\StatusCodes;
 use Meetingg\Exception\PublicException;
 
-class AuthMiddleware implements MiddlewareInterface
+class AuthMiddleware extends BaseMiddleware
 {
     protected Micro $app;
 
     public function beforeExecuteRoute(Event $event, Micro $app)
     {
-        $authorizeExceptions = [
-            'index', 'login', 'register', 'forgetpassword', 'public'
-        ];
-        
-        $routeName = $this->getRouteName($app);
-
-        if (!in_array($routeName, $authorizeExceptions)) {
+        if (false === $this->matchRoute($app, 'public')) {
             $authorization = $this->authorize($app);
             
             if (is_null($authorization) !== false) {
@@ -40,13 +32,16 @@ class AuthMiddleware implements MiddlewareInterface
             }
 
             $app->getDI()->setShared('user', function () use ($authorization) {
-                return User::findFirstById($authorization->claims()->get('uid'));
+                $user = User::findFirstById($authorization->claims()->get('uid'));
+                $user->setSessionToken($authorization);
+
+                return $user;
             });
         }
 
-        if (in_array($app->request->getMethod(), ['POST', 'PUT']) and $app->request->getHeader('Content-Type') != 'application/json') {
+        if (in_array($app->request->getMethod(), ['POST', 'PUT']) and false === strpos($app->request->getHeader('Content-Type'), '/json')) {
             $app->response->setStatusCode(400, StatusCodes::HTTP_BAD_REQUEST);
-            throw new PublicException("Only application/json is accepted for Content-Type in POST requests");
+            throw new PublicException("Only application/json is accepted for Content-Type in POST requests {$app->request->getHeader('Content-Type')}");
             return false;
         }
 
@@ -93,12 +88,6 @@ class AuthMiddleware implements MiddlewareInterface
         return $authorized;
     }
 
-    public function call(Micro $app)
-    {
-        $this->app = $app;
-        return true;
-    }
-    
     /**
      * Get Bearer token from authorization header
      *
@@ -113,17 +102,5 @@ class AuthMiddleware implements MiddlewareInterface
             }
         }
         return null;
-    }
-
-    /**
-     * Get Route Name
-     */
-    public function getRouteName(Micro $app) :? string
-    {
-        $router = $app->router;
-        if ($router === null || $router->getMatchedRoute() === null) {
-            throw new Exception("Router is missing to get route name");
-        }
-        return $router->getMatchedRoute()->getName();
     }
 }

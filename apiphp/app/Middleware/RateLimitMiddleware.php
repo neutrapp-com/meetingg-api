@@ -4,21 +4,31 @@ namespace Meetingg\Middleware;
 
 use Phalcon\Mvc\Micro;
 use Phalcon\Events\Event;
-use Phalcon\Mvc\Micro\MiddlewareInterface;
 
 use Meetingg\Http\StatusCodes;
 use Meetingg\Exception\PublicException;
 use Meetingg\Services\Throttler\RateLimit;
 
-class RateLimitMiddleware implements MiddlewareInterface
+class RateLimitMiddleware extends BaseMiddleware
 {
     protected RateLimit $rateLimit;
 
+    /**
+     * Construct ; Generate Default Rate Limit
+     */
     public function __construct()
     {
         $this->rateLimit = new RateLimit(0, 0, 0, 0, false, false, 0, 0);
     }
 
+
+    /**
+     * Before Execute Route Event
+     *
+     * @param Event $event
+     * @param Micro $app
+     * @return void
+     */
     public function beforeExecuteRoute(Event $event, Micro $app)
     {
         $isLimited = $this->isLimited($app);
@@ -40,15 +50,17 @@ class RateLimitMiddleware implements MiddlewareInterface
         return true;
     }
 
+
+    /**
+     * Is Rate Limited
+     *
+     * @param Micro $app
+     * @return boolean
+     */
     public function isLimited(Micro $app) : bool
     {
         $throttler = $app->getService('throttler');
         $this->rateLimit = $throttler->consume($app->request->getClientAddress());
         return $this->rateLimit->isLimited();
-    }
-
-    public function call(Micro $app)
-    {
-        return true;
     }
 }
