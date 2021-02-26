@@ -26,6 +26,12 @@ class User extends BaseModel
      *
      * @var string
      */
+    public $invite_id;
+
+    /**
+     *
+     * @var string
+     */
     public $firstname;
 
     /**
@@ -33,12 +39,6 @@ class User extends BaseModel
      * @var string
      */
     public $lastname;
-
-    /**
-     *
-     * @var string
-     */
-    public $username;
 
     /**
      *
@@ -56,12 +56,6 @@ class User extends BaseModel
      *
      * @var string
      */
-    public $status;
-
-    /**
-     *
-     * @var string
-     */
     public $avatar;
 
     /**
@@ -69,6 +63,36 @@ class User extends BaseModel
      * @var string
      */
     public $phone;
+
+    /**
+     *
+     * @var string
+     */
+    public $fax;
+
+    /**
+     *
+     * @var string
+     */
+    public $address;
+
+    /**
+     *
+     * @var string
+     */
+    public $city;
+
+    /**
+     *
+     * @var string
+     */
+    public $country;
+
+    /**
+     *
+     * @var string
+     */
+    public $status;
 
     /**
      *
@@ -87,19 +111,6 @@ class User extends BaseModel
      * @var string
      */
     public $updated_at;
-
-    /**
-     *
-     * @var string
-     */
-    public $created_ip;
-
-    /**
-     *
-     * @var string
-     */
-    public $updated_ip;
-
 
     /**
      *
@@ -196,15 +207,7 @@ class User extends BaseModel
             ])
         );
 
-        $validator->add(
-            'username',
-            new Regex([
-                'message'    => "Username can only contain letters and numbers",
-                'pattern' => '/^([a-z0-9_.-]*)$/i',
-                'allowEmpty' => true
-            ])
-        );
-
+ 
         $validator->add(
             'country_id',
             new InclusionIn([
@@ -304,7 +307,7 @@ class User extends BaseModel
     public function getProfile(array $excludeFields = [], array $customIncludes = [], bool $onlyCustom = false) : array
     {
         $includeInputs = true === $onlyCustom ? $customIncludes : array_merge(
-            ['id','firstname','lastname','city','country_id','email','avatar','phone', 'status','created_at','updated_at'],
+            ['id','firstname','lastname','city','country_id','email','avatar','fax', 'status','created_at','updated_at'],
             $customIncludes
         );
 
