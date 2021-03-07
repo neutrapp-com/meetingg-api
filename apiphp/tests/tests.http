@@ -70,6 +70,7 @@ Content-Type: application/json
 #------------------------------------------------------------
 ###
 # @name getMyGroups
+@groupid = {{getMyGroups.response.body.$.rows[0].id}}
 
 GET {{baseUrl}}/group/my HTTP/1.1
 Authorization: Bearer {{authToken}}
@@ -77,13 +78,50 @@ Content-Type: application/json
 
 #------------------------------------------------------------
 ###
-# @name updateGroup
-@groupid = {{getMyGroups.response.body.$.rows[0].id}}
+# @name getOneGroup
 
-POST {{baseUrl}}/group/{{groupid}}/update HTTP/1.1
+GET {{baseUrl}}/group/{{groupid}} HTTP/1.1
+Authorization: Bearer {{authToken}}
+Content-Type: application/json
+
+#------------------------------------------------------------
+###
+# @name updateGroup
+@groupOneId = {{getOneGroup.response.body.$.row.id}}
+
+POST {{baseUrl}}/group/{{groupOneId}}/update HTTP/1.1
 Authorization: Bearer {{authToken}}
 Content-Type: application/json
 
 {
-    "title": "{{groupTitle}} updated"
+    "title": "Updated {{groupTitle}}"
 }
+
+#------------------------------------------------------------
+###
+# @name updateFakeGroup
+
+POST {{baseUrl}}/group/{{fakeuuid}}/update HTTP/1.1
+Authorization: Bearer {{authToken}}
+Content-Type: application/json
+
+{
+    "title": "Update fake title"
+}
+
+#------------------------------------------------------------
+###
+# @name deleteFakeGroup
+
+POST {{baseUrl}}/group/{{fakeuuid}}/delete HTTP/1.1
+Authorization: Bearer {{authToken}}
+Content-Type: application/json
+
+#------------------------------------------------------------
+###
+# @name deleteGroup
+
+POST {{baseUrl}}/group/{{groupOneId}}/delete HTTP/1.1
+Authorization: Bearer {{authToken}}
+Content-Type: application/json
+

@@ -12,14 +12,36 @@ use Phalcon\Validation as EmptyValidator;
  */
 class ApiModelController extends AuthentifiedController
 {
+    /** @var GET_ONE */
+    const GET_ONE = true;
+
+    /** @var GET_MY */
+    const GET_MY = true;
+
+    /** @var NEW_ONE */
+    const NEW_ONE = true;
+
+    /** @var UPDATE_ONE */
+    const UPDATE_ONE = true;
+
+    /** @var DELETE_ONE */
+    const DELETE_ONE = true;
+
+
     /** @var DATA_ASSIGN */
     const DATA_ASSIGN = [];
 
     /** @var DATA_ASSIGN_UPDATE */
-    const DATA_ASSIGN_UPDATE = [];
+    const DATA_ASSIGN_UPDATE = true;
 
     /** @var FOREIGN_KEYS */
     const FOREIGN_KEYS = [];
+
+    /** @var NEW_ROW_ACTIVE */
+    const NEW_ROW_ACTIVE = false;
+
+    /** @var UPDATE_ROW_ACTIVE */
+    const UPDATE_ROW_ACTIVE = false;
 
     /** @var VALIDATOR */
     const VALIDATOR = EmptyValidator::class;
@@ -37,12 +59,17 @@ class ApiModelController extends AuthentifiedController
      */
     public function getMy() :? array
     {
-        if (null === $this->getClass()::MODEL) {
+        $selfClass = $this->getClass();
+
+        if (false === $selfClass::GET_MY) {
+            throw new PublicException("Action forbidden");
+        }
+        if (null === $selfClass::MODEL) {
             return ['action'=> __FUNCTION__,];
         }
 
         // dynamic action
-        $model = $this->getClass()::MODEL;
+        $model = $selfClass::MODEL;
 
         $rows = $model::find($this->modelFindParams());
 
@@ -57,7 +84,13 @@ class ApiModelController extends AuthentifiedController
      */
     public function newOne() :? array
     {
-        if (null === $this->getClass()::MODEL) {
+        $selfClass = $this->getClass();
+
+        if (false === $selfClass::NEW_ONE) {
+            throw new PublicException("Action forbidden");
+        }
+        
+        if (null === $selfClass::MODEL) {
             return ['action'=> __FUNCTION__,];
         }
 
@@ -65,7 +98,7 @@ class ApiModelController extends AuthentifiedController
          * Dynamic action
          * Data Validation
          */
-        $validatorName = $this->getClass()::VALIDATOR;
+        $validatorName = $selfClass::VALIDATOR;
 
         $validator = new $validatorName();
         $postData = $this->request->get();
@@ -79,26 +112,26 @@ class ApiModelController extends AuthentifiedController
         /**
          * Data Insert
          */
-        $modelName = $this->getClass()::MODEL;
+        $modelName = $selfClass::MODEL;
 
         $row = new $modelName();
 
         // client input
-        $row->assign($postData, $this->getClass()::DATA_ASSIGN);
+        $row->assign($postData, $selfClass::DATA_ASSIGN);
 
         // controller inputs
-        $row->assign($this->foreignkeys(), $this->getClass()::FOREIGN_KEYS);
+        $row->assign($this->foreignkeys(), $selfClass::FOREIGN_KEYS);
 
-        // enable row
-        $row->setActive(true);
+        // row status
+        $row->setActive($selfClass::NEW_ROW_ACTIVE);
 
         if (false === $row->create()) {
             throw new \Exception(implode(',', $row->getMessages()));
         }
 
         return [
-            'message' => $this->getClass()::ROW_NAME  . ' created successfully',
-            $this->getClass()::ROW_NAME => $row
+            'message' => $selfClass::ROW_NAME  . ' created successfully',
+            $selfClass::ROW_NAME => $row
         ];
     }
 
@@ -109,13 +142,30 @@ class ApiModelController extends AuthentifiedController
      */
     public function getOne(string $rowId) :? array
     {
+        $selfClass = $this->getClass();
+
+        if (false === $selfClass::GET_ONE) {
+            throw new PublicException("Action forbidden");
+        }
+
         self::validUUIDOrThrowException($rowId);
-        if (null === $this->getClass()::MODEL) {
+        if (null === $selfClass::MODEL) {
             return ['action'=> __FUNCTION__,'id'=>$rowId];
         }
 
-        // dynamic action
-        $row = [];
+        /**
+         * Dynamic Action
+         * Find One Row
+         */
+        $modelName = $selfClass::MODEL;
+        $findParams = $this->mixModelFindParams([
+            'id = :id:',
+            'bind'=> [
+                'id'=> $rowId
+            ]
+        ]);
+
+        $row = self::findFirstOrThrowException($modelName, $findParams);
 
         return [
             'row'=> $row
@@ -129,8 +179,14 @@ class ApiModelController extends AuthentifiedController
      */
     public function updateOne(string $rowId) :? array
     {
+        $selfClass = $this->getClass();
+
+        if (false === $selfClass::UPDATE_ONE) {
+            throw new PublicException("Action forbidden");
+        }
+        
         self::validUUIDOrThrowException($rowId);
-        if (null === $this->getClass()::MODEL) {
+        if (null === $selfClass::MODEL) {
             return ['action'=> __FUNCTION__,'id'=>$rowId];
         }
 
@@ -138,7 +194,7 @@ class ApiModelController extends AuthentifiedController
          * Dynamic action
          * Data Validation
          */
-        $validatorName = $this->getClass()::VALIDATOR;
+        $validatorName = $selfClass::VALIDATOR;
 
         $validator = new $validatorName();
         $postData = $this->request->get();
@@ -150,9 +206,9 @@ class ApiModelController extends AuthentifiedController
         }
 
         /**
-         * Data Insert
+         * Data Update
          */
-        $modelName = $this->getClass()::MODEL;
+        $modelName = $selfClass::MODEL;
         $findParams = $this->mixModelFindParams([
             'id = :id:',
             'bind'=> [
@@ -160,25 +216,26 @@ class ApiModelController extends AuthentifiedController
             ]
         ]);
 
-        $row = $modelName::findFirst($findParams);
+        $row = self::findFirstOrThrowException($modelName, $findParams);
+
+        $updateColumns = $selfClass::DATA_ASSIGN_UPDATE;
+        $updateColumns = (false === $updateColumns) ? [] : $updateColumns;
+        $updateColumns = (true  ===  $updateColumns) ? $selfClass::DATA_ASSIGN : $updateColumns;
 
         // client input
-        $row->assign($postData, $this->getClass()::DATA_ASSIGN_UPDATE);
+        $row->assign($postData, $updateColumns);
 
-        // enable row
-        $row->setActive(true);
+        // row status
+        $row->setActive($selfClass::UPDATE_ROW_ACTIVE);
 
         if (false === $row->update()) {
             throw new \Exception(implode(',', $row->getMessages()));
         }
 
         return [
-            'message' => $this->getClass()::ROW_NAME  . ' updated successfully',
-            $this->getClass()::ROW_NAME => $row
+            'message' => $selfClass::ROW_NAME  . ' updated successfully',
+            $selfClass::ROW_NAME => $row
         ];
-
-
-        return [];
     }
 
     /**
@@ -188,15 +245,40 @@ class ApiModelController extends AuthentifiedController
      */
     public function deleteOne(string $rowId) :? array
     {
+        $selfClass = $this->getClass();
+
+        if (false === $selfClass::DELETE_ONE) {
+            throw new PublicException("Action forbidden");
+        }
+
         self::validUUIDOrThrowException($rowId);
-        if (null === $this->getClass()::MODEL) {
+        if (null === $selfClass::MODEL) {
             return ['action'=> __FUNCTION__,'id'=>$rowId];
         }
 
-        // dynamic action
+        /**
+         * Data Delete
+         */
+        $modelName = $selfClass::MODEL;
+        $findParams = $this->mixModelFindParams([
+            'id = :id:',
+            'bind'=> [
+                'id'=> $rowId
+            ]
+        ]);
 
+        $row = self::findFirstOrThrowException($modelName, $findParams);
+        
+        if (false === $row->delete()) {
+            throw new \Exception(implode(',', $row->getMessages()));
+        }
 
-        return [];
+        return [
+            'message' => $selfClass::ROW_NAME  . ' deleted successfully',
+            $selfClass::ROW_NAME => [
+                'id'=> $rowId
+            ]
+        ];
     }
 
     /**
@@ -228,6 +310,7 @@ class ApiModelController extends AuthentifiedController
     {
         return null;
     }
+
     /**
      * Return Mix Model Find Params
      *
@@ -253,5 +336,24 @@ class ApiModelController extends AuthentifiedController
 
         
         return array_merge($newModelParams, array_merge($params, $modelParams));
+    }
+
+
+    /**
+     * Find Or Throw Exception
+     *
+     * @param string $modelName
+     * @param array|null $findParams
+     * @return void
+     */
+    public static function findFirstOrThrowException(string $modelName, ?array $findParams)
+    {
+        $row = $modelName::findFirst($findParams);
+        if (true === is_null($row)) {
+            throw new PublicException("Row does not exist !", StatusCodes::HTTP_NOT_FOUND);
+        }
+
+
+        return $row;
     }
 }

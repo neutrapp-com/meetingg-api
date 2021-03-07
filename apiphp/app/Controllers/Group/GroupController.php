@@ -19,12 +19,16 @@ class GroupController extends ApiModelController
     const DATA_ASSIGN = ['title'];
 
     /** @var DATA_ASSIGN_UPDATE */
-    const DATA_ASSIGN_UPDATE = ['title'];
+    const DATA_ASSIGN_UPDATE = true;
 
     /** @var FOREIGN_KEYS */
     const FOREIGN_KEYS = [
         'user_id'
     ];
+
+    /** @var NEW_ROW_ACTIVE */
+    const NEW_ROW_ACTIVE = true;
+
 
     /** @var VALIDATOR */
     const VALIDATOR = GroupValidator::class;
