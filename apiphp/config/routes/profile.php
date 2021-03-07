@@ -14,7 +14,7 @@ $collection
     ->get("/", "index", "public")           // ok
     ->get("/me", "myProfile")               // ok
     ->get("/me/avatar", "getAvatar")        // ok
-    ->get("/user/{id}", "userProfile")      // ok
+    ->get("/{id:[0-9a-z]{8}-[0-9a-z]{4}-[0-9a-z]{4}-[0-9a-z]{4}-[0-9a-z]{12}}", "userProfile")      // ok
 // actions
     ->post("/update", "updateProfile")      // ok
     ->post("/avatar", "updateAvatar")       // #todo

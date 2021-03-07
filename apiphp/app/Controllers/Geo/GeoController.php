@@ -3,8 +3,8 @@ declare(strict_types=1);
 
 namespace Meetingg\Controllers\Geo;
 
+use Meetingg\Models\Country;
 use Meetingg\Controllers\BaseController;
-use Meetingg\Library\Country;
 
 /**
  *  Landing Static Controller
@@ -27,7 +27,11 @@ class GeoController extends BaseController
     public function countries() :? array
     {
         return ['data'=>
-            Country::all()
+            array_map(function ($item) {
+                return array_filter($item, function ($key) {
+                    return in_array($key, self::COUNTRY_COLUMNS);
+                }, ARRAY_FILTER_USE_KEY);
+            }, Country::find()->toArray(true))
         ];
     }
 }

@@ -25,7 +25,7 @@ class AuthMiddleware extends BaseMiddleware
         if (false === $this->matchRoute($app, 'public')) {
             $authorization = $this->authorize($app);
             
-            if (is_null($authorization) !== false) {
+            if (false !== is_null($authorization)) {
                 $app->response->setStatusCode(401, StatusCodes::HTTP_UNAUTHORIZED);
                 throw new PublicException("Please authorize with valid API token");
                 return false;

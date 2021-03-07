@@ -2,6 +2,12 @@
 
 namespace Meetingg\Models;
 
+use Phalcon\Validation;
+use Phalcon\Validation\Validator\Uniqueness;
+
+use Meetingg\Models\Contact;
+use Meetingg\Models\Group\Contact as GroupContact;
+
 class Group extends BaseModel
 {
 
@@ -48,30 +54,37 @@ class Group extends BaseModel
     {
         $this->setDefaultSchema();
         $this->setSource("group");
-        $this->hasMany('id', 'Meetingg\Models\Groupcontacts', 'group_id', ['alias' => 'Groupcontacts']);
+
         $this->belongsTo('user_id', 'Meetingg\Models\User', 'id', ['alias' => 'User']);
+
+        $this->hasManyToMany(
+            'id',
+            GroupContact::class,
+            'group_id',
+            'contact_id',
+            Contact::class,
+            'id',
+            ['alias' => 'Contacts']
+        );
     }
 
     /**
-     * Allows to query a set of records that match the specified conditions
+     * Validations and business logic
      *
-     * @param mixed $parameters
-     * @return Group[]|Group|\Phalcon\Mvc\Model\ResultSetInterface
+     * @return boolean
      */
-    public static function find($parameters = null): \Phalcon\Mvc\Model\ResultsetInterface
+    public function validation() : bool
     {
-        return parent::find($parameters);
-    }
+        $validator = new Validation();
 
-    /**
-     * Allows to query the first record that match the specified conditions
-     *
-     * @param mixed $parameters
-     * @return Group|\Phalcon\Mvc\Model\ResultInterface
-     */
-    public static function findFirst($parameters = null) : ? \Phalcon\Mvc\ModelInterface
-    {
-        return parent::findFirst($parameters);
-    }
+        $validator->add(
+            ['user_id','title'],
+            new Uniqueness([
+                'model' => $this,
+                'message' => 'Group name already exists !',
+            ])
+        );
 
+        return $this->validate($validator);
+    }
 }

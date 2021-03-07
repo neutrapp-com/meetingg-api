@@ -3,9 +3,12 @@ declare(strict_types=1);
 
 namespace Meetingg\Controllers;
 
+use Meetingg\Exception\PublicException;
+use Meetingg\Http\StatusCodes;
 use Phalcon\Mvc\Controller;
 
 use Meetingg\Interfaces\SharedConstInterface;
+use Meetingg\Models\BaseModel;
 
 class BaseController extends Controller implements SharedConstInterface
 {
@@ -72,5 +75,20 @@ class BaseController extends Controller implements SharedConstInterface
         return array_filter($dataArray, function ($key) use ($excludes) {
             return !in_array($key, $excludes);
         }, ARRAY_FILTER_USE_KEY);
+    }
+
+    /**
+     * Validate UUID or Throw Exception
+     *
+     * @param string $uuid
+     * @return boolean
+     */
+    public static function validUUIDOrThrowException(string $uuid) : bool
+    {
+        if (false === BaseModel::validUUID($uuid)) {
+            throw new PublicException("Parameter given is not a valid uuid", StatusCodes::HTTP_BAD_REQUEST);
+        }
+
+        return true;
     }
 }

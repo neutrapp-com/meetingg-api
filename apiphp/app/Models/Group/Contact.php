@@ -1,8 +1,10 @@
 <?php
 
-namespace Meetingg\Models;
+namespace Meetingg\Models\Group;
 
-class Groupcontacts extends BaseModel
+use Meetingg\Models\BaseModel;
+
+class Contact extends BaseModel
 {
 
     /**
@@ -36,15 +38,16 @@ class Groupcontacts extends BaseModel
     {
         $this->setDefaultSchema();
         $this->setSource("groupcontacts");
-        $this->belongsTo('contact_id', 'Meetingg\Models\Contact', 'target_id', ['alias' => 'Contact']);
+
         $this->belongsTo('group_id', 'Meetingg\Models\Group', 'id', ['alias' => 'Group']);
+        $this->belongsTo('contact_id', 'Meetingg\Models\Contact', 'target_id', ['alias' => 'Contact']);
     }
 
     /**
      * Allows to query a set of records that match the specified conditions
      *
      * @param mixed $parameters
-     * @return Groupcontacts[]|Groupcontacts|\Phalcon\Mvc\Model\ResultSetInterface
+     * @return Contact[]|Contact|\Phalcon\Mvc\Model\ResultSetInterface
      */
     public static function find($parameters = null): \Phalcon\Mvc\Model\ResultsetInterface
     {
@@ -55,11 +58,10 @@ class Groupcontacts extends BaseModel
      * Allows to query the first record that match the specified conditions
      *
      * @param mixed $parameters
-     * @return Groupcontacts|\Phalcon\Mvc\Model\ResultInterface
+     * @return Contact|\Phalcon\Mvc\Model\ResultInterface
      */
     public static function findFirst($parameters = null) : ? \Phalcon\Mvc\ModelInterface
     {
         return parent::findFirst($parameters);
     }
-
 }

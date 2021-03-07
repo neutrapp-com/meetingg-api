@@ -46,7 +46,7 @@ try {
     /**
      * Handle the request
      */
-    $app->handle($_SERVER['REQUEST_URI']);
+    $app->handle($_SERVER['REQUEST_URI'] ?? '/');
 } catch (\Exception $e) {
     if (!($e instanceof PublicException)) {
         // log errors

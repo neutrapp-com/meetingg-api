@@ -60,33 +60,13 @@ class Invite extends BaseModel
     {
         $this->setDefaultSchema();
         $this->setSource("invite");
-        $this->hasMany('id', 'Meetingg\Models\Discussionusers', 'invite_id', ['alias' => 'Discussionusers']);
-        $this->hasMany('id', 'Meetingg\Models\Meetingusers', 'invite_id', ['alias' => 'Meetingusers']);
+
         $this->hasMany('id', 'Meetingg\Models\User', 'invite_id', ['alias' => 'User']);
-        $this->belongsTo('meeting_id', 'Meetingg\Models\Meeting', 'id', ['alias' => 'Meeting']);
         $this->belongsTo('user_id', 'Meetingg\Models\User', 'id', ['alias' => 'User']);
-    }
 
-    /**
-     * Allows to query a set of records that match the specified conditions
-     *
-     * @param mixed $parameters
-     * @return Invite[]|Invite|\Phalcon\Mvc\Model\ResultSetInterface
-     */
-    public static function find($parameters = null): \Phalcon\Mvc\Model\ResultsetInterface
-    {
-        return parent::find($parameters);
-    }
+        $this->belongsTo('meeting_id', 'Meetingg\Models\Meeting', 'id', ['alias' => 'Meeting']);
 
-    /**
-     * Allows to query the first record that match the specified conditions
-     *
-     * @param mixed $parameters
-     * @return Invite|\Phalcon\Mvc\Model\ResultInterface
-     */
-    public static function findFirst($parameters = null) : ? \Phalcon\Mvc\ModelInterface
-    {
-        return parent::findFirst($parameters);
+        $this->hasMany('id', 'Meetingg\Models\Meeting\User', 'invite_id', ['alias' => 'MeetingUsers']);
+        $this->hasMany('id', 'Meetingg\Models\Discussion\User', 'invite_id', ['alias' => 'DiscussionUsers']);
     }
-
 }

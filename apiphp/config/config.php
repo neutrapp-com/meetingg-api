@@ -16,7 +16,7 @@ require_once(dirname(__DIR__) . '/vendor/autoload.php');
 
 $config =  new Config([
     'mode' => $_ENV['APP_ENV'] ?? 'production',
-    
+
     'database' => [
         'adapter'    => $_ENV['DB_ADAPTER'] ?? 'Mysql',
         'host'       => $_ENV['DB_HOST'] ?? 'localhost',
@@ -30,18 +30,18 @@ $config =  new Config([
     'cache'=>[
         'adapter'=> $_ENV['CACHE_ADAPTER'] ?? 'Stream',
         'options'=>[
-            'Redis'=>[
+            'Redis' =>[
                 'defaultSerializer' => 'Php',
                 'lifetime'          => $_ENV['CACHE_REDIS_LIFETIME'] ??7200,
                 'host'              => $_ENV['CACHE_REDIS_HOST'] ?? '0.0.0.0',
                 'port'              => $_ENV['CACHE_REDIS_PORT'] ?? 6379,
                 'index'             => 1,
             ],
-            'apcu'=>[
+            'apcu' =>[
                 'defaultSerializer' => 'Php',
                 'lifetime'          => $_ENV['CACHE_APCU_LIFETIME'] ?? 7200,
             ],
-            'Stream'=>[
+            'Stream' =>[
                 'defaultSerializer' => 'Php',
                 'storageDir' => $_ENV['CACHE_APCU_STORAGEDIR'] ?? BASE_PATH . '/storage/cache/shared/',
             ]

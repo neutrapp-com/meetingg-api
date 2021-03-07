@@ -13,9 +13,9 @@ $collection
     ->get("/", "index", "public")
     ->get("/session", "session")
     // actions
-    ->post("/login", "login", "login")
-    ->post("/register", "register", "register")
-    ->post("/forgetpassword", "forgetpassword", "forgetpassword");
+    ->post("/login", "login", "public")
+    ->post("/register", "register", "public")
+    ->post("/reset", "reset", "public");
 
 
 

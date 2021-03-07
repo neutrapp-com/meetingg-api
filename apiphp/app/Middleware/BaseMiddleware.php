@@ -17,7 +17,7 @@ class BaseMiddleware implements MiddlewareInterface
     public function getRouteName(Micro $app) :? string
     {
         $router = $app->router;
-        if ($router === null || $router->getMatchedRoute() === null) {
+        if (null === $router || null === $router->getMatchedRoute()) {
             throw new Exception("Router is missing to get route name");
         }
         return $router->getMatchedRoute()->getName();
@@ -46,6 +46,6 @@ class BaseMiddleware implements MiddlewareInterface
     {
         $keys = explode(".", $this->getRouteName($app));
         $search = array_search($key, $keys);
-        return $search !== false;
+        return false !== $search;
     }
 }

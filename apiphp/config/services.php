@@ -1,6 +1,8 @@
 <?php
 declare(strict_types=1);
 
+use Meetingg\Exception\PublicException;
+use Meetingg\Http\StatusCodes;
 use Phalcon\Cache;
 use Phalcon\Url as UrlResolver;
 use Phalcon\Mvc\View\Simple as View;
@@ -52,16 +54,19 @@ $di->setShared('db', function () {
     $params = $config->database->toArray();
 
     if (strtolower($config->database->adapter) == 'postgresql') {
-        unset($params['charset']);
-
-        foreach ($params as $key=>$val) {
+        foreach ($params as $key => $_val) {
             if (!in_array($key, ['host','port','username','password','dbname','schema'])) {
                 unset($params[$key]);
             }
         }
     }
 
-    $connection = new $class($params);
+    try {
+        $connection = new $class($params);
+    } catch (\Exception $e) {
+        // throw new public exception , let app handle it
+        throw new PublicException("Database Connection Failed", StatusCodes::HTTP_INTERNAL_SERVER_ERROR);
+    }
 
     return $connection;
 });
@@ -81,20 +86,19 @@ $di->setShared(
         if (!$config->cache->options[$cacheAdapter]) {
             throw new Exception("Cache Adapter $cacheAdapter Options null");
         }
-            
-        
+
         $cacheOptions = [
-            'lifetime'          => 7200,
-            'serializer'        => $jsonSerializer
+            'lifetime'          => 7200, // default 2h
+            'serializer'        => $jsonSerializer // method of parse/save cache
         ];
-        
+
         $cacheOptions += $config->cache->options[$cacheAdapter]->toArray() ?? [] ;
 
         $serializerFactory = new SerializerFactory();
         
         $cacheAdapter = "\Phalcon\Cache\Adapter\\{$cacheAdapter}";
         $adapter = new $cacheAdapter($serializerFactory, $cacheOptions);
-        
+
         return new Cache($adapter);
     }
 );
@@ -115,7 +119,7 @@ $di->setShared('jwt', function () {
 
     return [
         'key'=> $secretKey,
-        'config'=> $config
+        'config'=> $config // instnace Configuration::class ready to use
     ];
 });
 
