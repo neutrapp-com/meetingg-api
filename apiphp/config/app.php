@@ -6,11 +6,13 @@
 
 use Phalcon\Events\Manager;
 
+use Meetingg\Http\StatusCodes;
+use Meetingg\Library\Functions;
+use Meetingg\Middleware\AuthMiddleware;
+use Meetingg\Middleware\CacheMiddleware;
+use Meetingg\Middleware\RateLimitMiddleware;
 use Meetingg\Exception\PublicException;
 use Meetingg\Exception\Error\NotFound404;
-use Meetingg\Http\StatusCodes;
-use Meetingg\Middleware\AuthMiddleware;
-use Meetingg\Middleware\RateLimitMiddleware;
 
 /**
  * Before Execute
@@ -21,6 +23,8 @@ $eventsManager = new Manager();
 $eventsManager->attach('micro', new RateLimitMiddleware());
 // Auth Middleware
 $eventsManager->attach('micro', new AuthMiddleware());
+// Cache Middleware
+$eventsManager->attach('micro', new CacheMiddleware());
 
 $app->setEventsManager($eventsManager);
 
@@ -30,8 +34,9 @@ $app->setEventsManager($eventsManager);
 $app->before(function () use ($app) {
     $contentType = $app->request->getHeader('Content-Type');
     $contentType = $_SERVER['CONTENT_TYPE'] ?? null;
-    if ($contentType === 'application/json') {
-        $rawBody = $app->request->getJsonRawBody(true);
+
+    if (-1 !== strpos($contentType, '/json')) {
+        $rawBody = $app->request->getJsonRawBody(true) ?? [];
         // inject params in the request
 
         foreach ($rawBody as $key => $value) {
@@ -61,6 +66,26 @@ $app->notFound(function () use ($app) {
  */
 $app->after(function () use ($app) {
     $content = $app->getReturnedValue();
+
+    if ($app->getDi()->has('minimized_content')) {
+        $contentData = $content;
+        
+        $content = array_map(function ($arrayIndexed) {
+            if (is_array($arrayIndexed) && Functions::indexedArray($arrayIndexed) === true && count($arrayIndexed) > 0) {
+                $newArray = [
+                    'columns'=> array_keys($arrayIndexed[array_key_first($arrayIndexed)]),
+                    'rows'=> array_map(function ($row) {
+                        return array_values($row);
+                    }, $arrayIndexed)
+                ];
+
+                return $newArray;
+            }
+
+            return $arrayIndexed;
+        }, $contentData);
+    }
+
     $content = is_array($content) || is_object($content) ? $content : ['data' => $content];
 
     /**
@@ -69,12 +94,11 @@ $app->after(function () use ($app) {
     $app->response->setContentType('application/json');
     $app->response->setJsonContent(array_merge_recursive(
         [
-        'status' => $app->response->getStatusCode() ?: 200,
-    ],
+        'status' => $app->response->getStatusCode() ?: "ok",
+        ],
         $content
     ));
 
-    
     /**
      * End & Send Response
      */
@@ -115,6 +139,7 @@ $app->error(
                 (property_exists(get_class($e), 'data') ? $e->getData() : [])
             )
         );
+        
         /**
          * Aditions Exception Headers
          */

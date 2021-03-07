@@ -10,7 +10,7 @@ $collection->setHandler(IndexController::class, true);
 $collection->setPrefix('');
 
 $collection
-    ->get("/", "index" , "index")
+    ->get("/", "index", "public")
     ;
 
 

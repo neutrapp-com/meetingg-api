@@ -2,6 +2,8 @@
 
 /**
  * Registering an autoloader
+ *
+ * psr-4
  */
 $loader = new \Phalcon\Loader();
 

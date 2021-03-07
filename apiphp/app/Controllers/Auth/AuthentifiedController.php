@@ -16,7 +16,6 @@ class AuthentifiedController extends BaseController
 {
     protected User $user;
 
-
     /**
      * On Construct , Bind User into controller
      *

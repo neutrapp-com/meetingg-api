@@ -57,15 +57,10 @@ class AuthController extends BaseController
         $remember = isset($postData['remember']);
 
         // return new JWT Token
+        $token = $this->generateJWTSessionToken($user, $remember ? self::TOKEN_EXPIRE_TIME : self::TOKEN_EXPIRE_TIME_REMEMBER, $remember ? [self::REMEMBER_CLAIM => 1] : [])->toString();
         return [
-            'data' => array_merge(
-                [
-                    'token'=>
-                    $this->generateJWTSessionToken($user, $remember ? self::TOKEN_EXPIRE_TIME : self::TOKEN_EXPIRE_TIME_REMEMBER, $remember ? [self::REMEMBER_CLAIM => 1] : [])->toString(),
-                ],
-                $user->getProfile()
-            )
-            ];
+            'session' => array_merge($user->getProfile(), ['token'=> $token])
+        ];
     }
     
 
@@ -93,7 +88,7 @@ class AuthController extends BaseController
         }
 
         return [
-            'data' => array_merge(['token'=> $user->getSessionToken()->toString()], $user->getProfile())
+            'session' => array_merge($user->getProfile(), ['token'=> $user->getSessionToken()->toString()])
         ];
     }
 
@@ -119,7 +114,7 @@ class AuthController extends BaseController
             'lastname',
             'email',
             'password',
-            'country_id',
+            'country',
             'city',
         ]);
 

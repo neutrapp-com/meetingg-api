@@ -2,8 +2,8 @@
 
 namespace Meetingg\Models;
 
-use Meetingg\Models\Company\User as CompanyUser;
 use Lcobucci\JWT\Token;
+use Meetingg\Library\Country;
 use Phalcon\Security;
 use Phalcon\Validation;
 use Phalcon\Validation\Validator\Email as EmailValidator;
@@ -93,12 +93,6 @@ class User extends BaseModel
      * @var string
      */
     public $status;
-
-    /**
-     *
-     * @var string
-     */
-    public $country_id;
 
     /**
      *
@@ -209,7 +203,7 @@ class User extends BaseModel
 
  
         $validator->add(
-            'country_id',
+            'country',
             new InclusionIn([
                 'domain' => Country::allKeys(),
                 'message' => 'Invalid country',
@@ -226,24 +220,6 @@ class User extends BaseModel
     {
         $this->setDefaultSchema();
         $this->setSource("user");
-
-        /**
-         * User CompanyUser
-         */
-        $this->hasMany('id', 'Meetingg\Models\Company\User', 'user_id', ['alias' => 'CompanyUser']);
-        
-        /**
-         * User Companies
-         */
-        $this->hasManyToMany(
-            'id',
-            CompanyUser::class,
-            'user_id',
-            'company_id',
-            Company::class,
-            'id',
-            ['alias' => 'Companies']
-        );
 
         /**
          * Keepsnapshots to detect if password changed,
@@ -307,7 +283,7 @@ class User extends BaseModel
     public function getProfile(array $excludeFields = [], array $customIncludes = [], bool $onlyCustom = false) : array
     {
         $includeInputs = true === $onlyCustom ? $customIncludes : array_merge(
-            ['id','firstname','lastname','city','country_id','email','avatar','fax', 'status','created_at','updated_at'],
+            ['id','firstname','lastname','city','email','avatar','fax', 'status','created_at','updated_at'],
             $customIncludes
         );
 

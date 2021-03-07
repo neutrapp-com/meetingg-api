@@ -1,23 +1,25 @@
 <?php
-
 use Phalcon\Mvc\Micro\Collection;
-use Meetingg\Controllers\IndexController;
+use Meetingg\Controllers\Event\EventController;
 
 $collection = new Collection();
 
-$collection->setHandler(IndexController::class, true);
+$collection->setHandler(EventController::class, true);
 
 $collection->setPrefix('/event');
 
 $collection
 // getters
     ->get("/", "index", "public")
-    ->get("/{id}", "data")
-// actions
-    ->post("/new", "index")
-    ->post("/{id}/move", "move")
-    ->post("/{id}/update", "update")
-    ->post("/{id}/delete", "delete")
+
+    ->get("/my", "getMyEvents")
+    ->get("/{id:[0-9a-z]{8}-[0-9a-z]{4}-[0-9a-z]{4}-[0-9a-z]{4}-[0-9a-z]{12}}", "getevent")
+// users
+    ->get("/{id:[0-9a-z]{8}-[0-9a-z]{4}-[0-9a-z]{4}-[0-9a-z]{4}-[0-9a-z]{12}}/users", "getUsers")
+    // actions
+    ->post("/new", "newevent")
+    ->post("/{id:[0-9a-z]{8}-[0-9a-z]{4}-[0-9a-z]{4}-[0-9a-z]{4}-[0-9a-z]{12}}/update", "updateEvent")
+    ->post("/delete", "deleteEvent") // todo(skip for v2)
     ;
 
 

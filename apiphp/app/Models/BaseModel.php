@@ -26,7 +26,7 @@ class BaseModel extends Model implements SharedConstInterface
      *
      * @var string
      */
-    protected $schemaName = "dma";
+    protected $schemaName = "mgg";
 
 
     /**
@@ -51,7 +51,7 @@ class BaseModel extends Model implements SharedConstInterface
      */
     public function setDefaultSchema() : void
     {
-        $this->setSchema($this->getDI()->config->database->schema ?? "dma");
+        $this->setSchema($this->getDI()->config->database->schema ?? "mgg");
     }
 
     /**
