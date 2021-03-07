@@ -2,8 +2,6 @@
 
 namespace Meetingg\Models;
 
-use Lcobucci\JWT\Token;
-use Meetingg\Library\Country;
 use Phalcon\Security;
 use Phalcon\Validation;
 use Phalcon\Validation\Validator\Email as EmailValidator;
@@ -12,6 +10,12 @@ use Phalcon\Validation\Validator\PresenceOf;
 use Phalcon\Validation\Validator\Uniqueness;
 use Phalcon\Validation\Validator\StringLength;
 use Phalcon\Validation\Validator\InclusionIn;
+
+
+use Lcobucci\JWT\Token;
+use Meetingg\Library\Country;
+use Meetingg\Models\Discussion\User as DiscussionUser;
+use Meetingg\Models\Meeting\User as MeetingUser;
 
 class User extends BaseModel
 {
@@ -113,6 +117,93 @@ class User extends BaseModel
     public Token $sessionToken;
 
     /**
+     * Initialize method for model.
+     */
+    public function initialize()
+    {
+        $this->setDefaultSchema();
+        $this->setSource("user");
+
+
+        $this->hasManyToMany(
+            'id',
+            DiscussionUser::class,
+            'user_id',
+            'discussion_id',
+            Discussion::class,
+            'id',
+            [
+                'alias'=>'Discussions'
+            ]
+        );
+
+        $this->hasManyToMany(
+            'id',
+            MeetingUser::class,
+            'user_id',
+            'meeting_id',
+            Meeting::class,
+            'id',
+            [
+                'alias'=>'Meetings'
+            ]
+        );
+
+        $this->hasMany(
+            'id',
+            Group::class,
+            'user_id',
+            [
+                'alias'=>'Groups'
+            ]
+        );
+
+
+        $this->hasMany(
+            'id',
+            Contact::class,
+            'user_id',
+            [
+                'alias'=>'Contacts'
+            ]
+        );
+
+        $this->hasMany(
+            'id',
+            Notification::class,
+            'user_id',
+            [
+                'alias'=>'Notifications'
+            ]
+        );
+
+        $this->hasMany(
+            'id',
+            Invite::class,
+            'user_id',
+            [
+                'alias'=>'Invites'
+            ]
+        );
+
+
+        $this->hasMany(
+            'id',
+            Message::class,
+            'user_id',
+            [
+                'alias'=>'Messages'
+            ]
+        );
+
+        /**
+         * Keepsnapshots to detect if password changed,
+         * to crypt it
+         */
+        $this->keepSnapshots(true);
+    }
+
+    /**
      * Validations and business logic
      *
      * @return boolean
@@ -211,21 +302,6 @@ class User extends BaseModel
         );
 
         return $this->validate($validator);
-    }
-
-    /**
-     * Initialize method for model.
-     */
-    public function initialize()
-    {
-        $this->setDefaultSchema();
-        $this->setSource("user");
-
-        /**
-         * Keepsnapshots to detect if password changed,
-         * to crypt it
-         */
-        $this->keepSnapshots(true);
     }
 
     /**
