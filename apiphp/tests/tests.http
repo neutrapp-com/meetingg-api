@@ -19,7 +19,7 @@
 @lastname = test
 @country = MA
 
-@grouptitle = "My X Group"
+@groupTitle = My X Group
 
 @fakeuuid = 188ac66b-dff8-491e-b174-9f5e478d5a85
 
@@ -27,7 +27,7 @@
 ### 
 # @name Register
 POST {{baseUrl}}/auth/register HTTP/1.1
-content-type: application/json
+Content-Type: application/json
 
 {
     "firstname":"{{firstname}}",
@@ -46,7 +46,7 @@ content-type: application/json
 @userId = {{Login.response.body.$.session.id}}
 
 POST {{baseUrl}}/auth/login HTTP/1.1
-content-type: application/json
+Content-Type: application/json
 
 {
     "email": "{{email}}",
@@ -60,12 +60,12 @@ content-type: application/json
 
 POST {{baseUrl}}/group/new HTTP/1.1
 Authorization: Bearer {{authToken}}
-content-type: application/json
+Content-Type: application/json
 
 {
-    "title":"{{grouptitle}}",
-    "user_id":"{{userId}}"
+    "title": "{{groupTitle}}"
 }
+
 
 #------------------------------------------------------------
 ###
@@ -73,84 +73,17 @@ content-type: application/json
 
 GET {{baseUrl}}/group/my HTTP/1.1
 Authorization: Bearer {{authToken}}
-content-type: application/json
+Content-Type: application/json
 
 #------------------------------------------------------------
 ###
-# @name updateCompany
-@company = {{getCompanies.response.body.$.data[0].company}}
-@companyid = {{getCompanies.response.body.$.data[0].company.id}}
+# @name updateGroup
+@groupid = {{getMyGroups.response.body.$.rows[0].id}}
 
-POST {{baseUrl}}/company/{{companyid}}/update HTTP/1.1
+POST {{baseUrl}}/group/{{groupid}}/update HTTP/1.1
 Authorization: Bearer {{authToken}}
-content-type: application/json
+Content-Type: application/json
 
 {
-    "title" : "test Delivery",
-    "description" : "Since 1999 we work with all type of clients",
-    "country_id" :  "MA",
-    "externalurl" : "https://safari.local/welcome",
-    "firstname" : "Jhon",
-    "lastname" : "Doe",
-    "street" : "11 Pierre semard",
-    "city" : "Charleville-Mezieres",
-    "statename" : "Grand Est",
-    "postal_code" : "08000",
-    "agree" : true
+    "title": "{{groupTitle}} updated"
 }
-
-#------------------------------------------------------------
-###
-# @name getCompanies
-
-
-GET {{baseUrl}}/company/my HTTP/1.1
-Authorization: Bearer {{authToken}}
-content-type: application/json
-
-#------------------------------------------------------------
-###
-# @name getFakeUsers
-GET {{baseUrl}}/company/{{fakeuuid}}/customers HTTP/1.1
-Authorization: Bearer {{authToken}}
-content-type: application/json
-
-#------------------------------------------------------------
-###
-@company = {{getCompanies.response.body.$.data[0].company}}
-@companyid = {{getCompanies.response.body.$.data[0].company.id}}
-
-# @name getUsers
-GET {{baseUrl}}/company/{{companyid}}/users HTTP/1.1
-Authorization: Bearer {{authToken}}
-content-type: application/json
-
-#------------------------------------------------------------
-###
-@company = {{getCompanies.response.body.$.data[0].company}}
-@companyid = {{getCompanies.response.body.$.data[0].company.id}}
-
-# @name getManagers
-GET {{baseUrl}}/company/{{companyid}}/managers HTTP/1.1
-Authorization: Bearer {{authToken}}
-content-type: application/json
-
-#------------------------------------------------------------
-###
-@company = {{getCompanies.response.body.$.data[0].company}}
-@companyid = {{getCompanies.response.body.$.data[0].company.id}}
-
-# @name getDrivers
-GET {{baseUrl}}/company/{{companyid}}/drivers HTTP/1.1
-Authorization: Bearer {{authToken}}
-content-type: application/json
-
-#------------------------------------------------------------
-###
-@company = {{getCompanies.response.body.$.data[0].company}}
-@companyid = {{getCompanies.response.body.$.data[0].company.id}}
-
-# @name getCustomers
-GET {{baseUrl}}/company/{{companyid}}/customers HTTP/1.1
-Authorization: Bearer {{authToken}}
-content-type: application/json

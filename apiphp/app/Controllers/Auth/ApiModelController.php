@@ -15,14 +15,20 @@ class ApiModelController extends AuthentifiedController
     /** @var DATA_ASSIGN */
     const DATA_ASSIGN = [];
 
-    /** @var FORGING_KEYS */
-    const FORGING_KEYS = [];
+    /** @var DATA_ASSIGN_UPDATE */
+    const DATA_ASSIGN_UPDATE = [];
+
+    /** @var FOREIGN_KEYS */
+    const FOREIGN_KEYS = [];
 
     /** @var VALIDATOR */
     const VALIDATOR = EmptyValidator::class;
 
     /** @var MODEL */
     const MODEL = null;
+
+    /** @var ROW_NAME */
+    const ROW_NAME = 'row';
 
     /**
      * Get My Row
@@ -55,8 +61,10 @@ class ApiModelController extends AuthentifiedController
             return ['action'=> __FUNCTION__,];
         }
 
-        // dynamic action
-        // validator name
+        /**
+         * Dynamic action
+         * Data Validation
+         */
         $validatorName = $this->getClass()::VALIDATOR;
 
         $validator = new $validatorName();
@@ -68,13 +76,29 @@ class ApiModelController extends AuthentifiedController
             throw new PublicException($errors[0]->getMessage(), StatusCodes::HTTP_BAD_REQUEST);
         }
 
-        // model name
-        $model = $this->getClass()::MODEL;
+        /**
+         * Data Insert
+         */
+        $modelName = $this->getClass()::MODEL;
 
-        $rows = $model::find($this->modelFindParams());
+        $row = new $modelName();
+
+        // client input
+        $row->assign($postData, $this->getClass()::DATA_ASSIGN);
+
+        // controller inputs
+        $row->assign($this->foreignkeys(), $this->getClass()::FOREIGN_KEYS);
+
+        // enable row
+        $row->setActive(true);
+
+        if (false === $row->create()) {
+            throw new \Exception(implode(',', $row->getMessages()));
+        }
 
         return [
-            'rows' => $rows
+            'message' => $this->getClass()::ROW_NAME  . ' created successfully',
+            $this->getClass()::ROW_NAME => $row
         ];
     }
 
@@ -91,9 +115,11 @@ class ApiModelController extends AuthentifiedController
         }
 
         // dynamic action
+        $row = [];
 
-
-        return [];
+        return [
+            'row'=> $row
+        ];
     }
 
     /**
@@ -108,7 +134,48 @@ class ApiModelController extends AuthentifiedController
             return ['action'=> __FUNCTION__,'id'=>$rowId];
         }
 
-        // dynamic action
+        /**
+         * Dynamic action
+         * Data Validation
+         */
+        $validatorName = $this->getClass()::VALIDATOR;
+
+        $validator = new $validatorName();
+        $postData = $this->request->get();
+
+        $errors = $validator->validate($postData);
+
+        if (0 !== count($errors)) {
+            throw new PublicException($errors[0]->getMessage(), StatusCodes::HTTP_BAD_REQUEST);
+        }
+
+        /**
+         * Data Insert
+         */
+        $modelName = $this->getClass()::MODEL;
+        $findParams = $this->mixModelFindParams([
+            'id = :id:',
+            'bind'=> [
+                'id'=> $rowId
+            ]
+        ]);
+
+        $row = $modelName::findFirst($findParams);
+
+        // client input
+        $row->assign($postData, $this->getClass()::DATA_ASSIGN_UPDATE);
+
+        // enable row
+        $row->setActive(true);
+
+        if (false === $row->update()) {
+            throw new \Exception(implode(',', $row->getMessages()));
+        }
+
+        return [
+            'message' => $this->getClass()::ROW_NAME  . ' updated successfully',
+            $this->getClass()::ROW_NAME => $row
+        ];
 
 
         return [];
@@ -160,5 +227,31 @@ class ApiModelController extends AuthentifiedController
     protected function modelFindParams() :? array
     {
         return null;
+    }
+    /**
+     * Return Mix Model Find Params
+     *
+     * @return array|null
+     */
+    protected function mixModelFindParams(array $params = []) :? array
+    {
+        $modelParams = $this->modelFindParams();
+        if (true === is_null($modelParams)) {
+            return $params;
+        }
+
+        $newModelParams = [
+            $modelParams[0] . ' and ' . $params[0],
+            'bind'=> $modelParams['bind'] + $params['bind']
+        ];
+        
+        // remove first condition && bind
+        array_shift($params);
+        array_shift($modelParams);
+        unset($params['bind']);
+        unset($modelParams['bind']);
+
+        
+        return array_merge($newModelParams, array_merge($params, $modelParams));
     }
 }

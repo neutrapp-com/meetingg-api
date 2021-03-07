@@ -3,9 +3,11 @@
 namespace Meetingg\Models;
 
 use DateTime;
-use Meetingg\Exception\PublicException;
-use Meetingg\Http\StatusCodes;
 use Phalcon\Mvc\Model;
+use Phalcon\Security\Random;
+
+use Meetingg\Http\StatusCodes;
+use Meetingg\Exception\PublicException;
 use Meetingg\Interfaces\SharedConstInterface;
 
 class BaseModel extends Model implements SharedConstInterface
@@ -55,13 +57,21 @@ class BaseModel extends Model implements SharedConstInterface
     }
 
     /**
-     * Before Create , Save microtime into database
-     *
-     * @return void
-     */
+         * Before Create , Save microtime into database
+         *
+         * @return void
+         */
     public function beforeCreate() : void
     {
-        $selfClass = get_class($this);
+        /**
+         * Generate new UUID
+         */
+        $this->generateUUID();
+
+        /**
+         * Fill Meta Time
+         */
+        $selfClass = get_called_class();
 
         if (property_exists($selfClass, 'created_at')) {
             $this->created_at = self::getTime();
@@ -78,7 +88,7 @@ class BaseModel extends Model implements SharedConstInterface
      */
     public function beforeUpdate() : void
     {
-        $selfClass = get_class($this);
+        $selfClass = get_called_class();
 
         if (property_exists($selfClass, 'updated_at')) {
             $this->updated_at = self::getTime();
@@ -95,7 +105,7 @@ class BaseModel extends Model implements SharedConstInterface
      */
     public function beforeDelete() : void
     {
-        $selfClass = get_class($this);
+        $selfClass = get_called_class();
 
         if (property_exists($selfClass, 'deleted_at')) {
             $this->deleted_at = self::getTime();
@@ -147,5 +157,33 @@ class BaseModel extends Model implements SharedConstInterface
     {
         $matches = preg_match('/^[0-9a-z]{8}-[0-9a-z]{4}-[0-9a-z]{4}-[0-9a-z]{4}-[0-9a-f]{12}$/i', $uuid);
         return $matches >= 1;
+    }
+
+    /**
+     * Set Model Status
+     *
+     * @param boolean $active
+     * @return self
+     */
+    public function setActive(bool $active) : self
+    {
+        $this->status = true === $active ? self::ACTIVE : self::INACTIVE;
+        return $this;
+    }
+
+    /**
+     * Generate New UUID
+     *
+     * @return self
+     */
+    protected function generateUUID() : self
+    {
+        $class = get_called_class();
+        
+        if (true === property_exists($class, 'id')) {
+            $this->id = (new Random)->uuid();
+        }
+
+        return $this;
     }
 }

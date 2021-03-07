@@ -12,13 +12,17 @@ use Meetingg\Controllers\Auth\ApiModelController;
  */
 class GroupController extends ApiModelController
 {
-    /** @var DATA_ASSIGN */
-    const DATA_ASSIGN = [
-        'title'
-    ];
+    /** @var ROW_NAME */
+    const ROW_NAME = 'group';
 
-    /** @var FORGING_KEYS */
-    const FORGING_KEYS = [
+    /** @var DATA_ASSIGN */
+    const DATA_ASSIGN = ['title'];
+
+    /** @var DATA_ASSIGN_UPDATE */
+    const DATA_ASSIGN_UPDATE = ['title'];
+
+    /** @var FOREIGN_KEYS */
+    const FOREIGN_KEYS = [
         'user_id'
     ];
 
@@ -41,14 +45,17 @@ class GroupController extends ApiModelController
     }
 
     /**
-     * Foreign Keys
+     * modal Find Params
      *
      * @return array
      */
     protected function modelFindParams() : array
     {
         return [
-            'user_id'=> $this->getUser()->id
+            'user_id = :userid:',
+            'bind'=>  [
+                'userid'=> $this->getUser()->id
+            ]
         ];
     }
 }
