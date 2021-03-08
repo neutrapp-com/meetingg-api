@@ -1,6 +1,6 @@
 <?php
 use Phalcon\Mvc\Micro\Collection;
-use Meetingg\Controllers\Group\GroupController;
+use Meetingg\Controllers\Contact\GroupController;
 
 $collection = new Collection();
 

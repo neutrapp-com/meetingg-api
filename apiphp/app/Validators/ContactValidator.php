@@ -6,9 +6,12 @@ declare(strict_types=1);
 namespace Meetingg\Validators;
 
 use Phalcon\Validation\Validator\PresenceOf;
+use Phalcon\Validation\Validator\InclusionIn;
 use Phalcon\Validation\Validator\StringLength;
 
-class GroupValidator extends BaseValidation
+use Meetingg\Models\User;
+
+class ContactValidator extends BaseValidation
 {
     public function initialize()
     {
@@ -29,6 +32,20 @@ class GroupValidator extends BaseValidation
                     'min' => 1,
                     'messageMaximum' => 'The :field is too long',
                     'messageMinimum' => 'The :field is too short',
+                ]
+            )
+        );
+        
+        $this->add(
+            'starred',
+            new InclusionIn(
+                [
+                    'domain' => [
+                        self::ACTIVE,
+                        self::INACTIVE,
+                    ],
+                    'message' => 'The :field must be Active/Inactive',
+                    'allowEmpty'=>true
                 ]
             )
         );

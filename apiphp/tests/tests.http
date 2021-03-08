@@ -19,7 +19,14 @@
 @lastname = test
 @country = MA
 
+@emailY = resttestY@demo.com
+@passwordY = resttest123]Y
+@firstnameY = restY
+@lastnameY = testY
+@countryY = FR
+
 @groupTitle = My X Group
+@contactTitle = Jhon X
 
 @fakeuuid = 188ac66b-dff8-491e-b174-9f5e478d5a85
 
@@ -40,6 +47,22 @@ Content-Type: application/json
 }
 
 #------------------------------------------------------------
+### 
+# @name RegisterY
+POST {{baseUrl}}/auth/register HTTP/1.1
+Content-Type: application/json
+
+{
+    "firstname":"{{firstnameY}}",
+    "lastname":"{{lastnameY}}",
+    "email": "{{emailY}}",
+    "password": "{{passwordY}}",
+    "cpassword": "{{passwordY}}",
+    "country": "{{countryY}}",
+    "agree": true
+}
+
+#------------------------------------------------------------
 ###
 # @name Login
 @authToken = {{Login.response.body.$.session.token}}
@@ -52,6 +75,31 @@ Content-Type: application/json
     "email": "{{email}}",
     "password": "{{password}}"
 }
+
+#------------------------------------------------------------
+###
+# @name LoginY
+@authTokenY = {{LoginY.response.body.$.session.token}}
+@userIdY = {{LoginY.response.body.$.session.id}}
+
+POST {{baseUrl}}/auth/login HTTP/1.1
+Content-Type: application/json
+
+{
+    "email": "{{emailY}}",
+    "password": "{{passwordY}}"
+}
+
+
+
+### -----------------------------------------------------------------------
+#
+#
+#   Group API
+#
+#
+### -----------------------------------------------------------------------
+
 
 
 #------------------------------------------------------------
@@ -122,6 +170,66 @@ Content-Type: application/json
 # @name deleteGroup
 
 POST {{baseUrl}}/group/{{groupOneId}}/delete HTTP/1.1
+Authorization: Bearer {{authToken}}
+Content-Type: application/json
+
+### -----------------------------------------------------------------------
+#
+#
+#   Contact API
+#
+#
+### -----------------------------------------------------------------------
+
+
+#------------------------------------------------------------
+###
+# @name newContact
+
+POST {{baseUrl}}/contact/new HTTP/1.1
+Authorization: Bearer {{authToken}}
+Content-Type: application/json
+
+{
+    "title": "{{contactTitle}}",
+    "target_id": "{{userIdY}}"
+}
+
+
+#------------------------------------------------------------
+###
+# @name getMyContacts
+@contactid = {{getMyContacts.response.body.$.rows[0].target_id}}
+
+GET {{baseUrl}}/contact/my HTTP/1.1
+Authorization: Bearer {{authToken}}
+Content-Type: application/json
+
+#------------------------------------------------------------
+###
+# @name getOneContact
+
+GET {{baseUrl}}/contact/{{contactid}} HTTP/1.1
+Authorization: Bearer {{authToken}}
+Content-Type: application/json
+
+#------------------------------------------------------------
+###
+# @name updateContact
+
+POST {{baseUrl}}/contact/{{contactid}}/update HTTP/1.1
+Authorization: Bearer {{authToken}}
+Content-Type: application/json
+
+{
+    "title": "Updated {{contactTitle}}"
+}
+
+#------------------------------------------------------------
+###
+# @name deleteContact
+
+POST {{baseUrl}}/contact/{{contactid}}/delete HTTP/1.1
 Authorization: Bearer {{authToken}}
 Content-Type: application/json
 

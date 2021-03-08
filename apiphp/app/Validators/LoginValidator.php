@@ -5,12 +5,11 @@ declare(strict_types=1);
 
 namespace Meetingg\Validators;
 
-use Phalcon\Validation;
 use Phalcon\Validation\Validator\Email;
 use Phalcon\Validation\Validator\PresenceOf;
 use Phalcon\Validation\Validator\StringLength;
 
-class LoginValidator extends Validation
+class LoginValidator extends BaseValidation
 {
     public function initialize()
     {
