@@ -1,40 +1,31 @@
 <?php
 declare(strict_types=1);
 
-namespace Meetingg\Controllers\Contact;
+namespace Meetingg\Controllers\Discussion;
 
-use Meetingg\Models\Contact;
-use Meetingg\Validators\ContactValidator;
 use Meetingg\Controllers\Auth\ApiModelController;
+use Meetingg\Models\Discussion\User as DiscussionUser;
 
 /**
  *  Landing Index Controller
  */
-class ContactController extends ApiModelController
+class DiscussionController extends ApiModelController
 {
     /** @var ROW_TITLE */
-    const ROW_TITLE = 'Contact';
-
-    /** @var DATA_ASSIGN */
-    const DATA_ASSIGN  = [ 'target_id', 'title',  'starred', 'blocked' ];
+    const ROW_TITLE = 'Discussion';
 
     /** @var FOREIGN_KEYS */
-    const FOREIGN_KEYS = [ 'user_id' , 'target_id' ];
+    const FOREIGN_KEYS = [ 'user_id', 'discussion_id' ];
 
     /** @var PRIMARY_KEYS */
-    const PRIMARY_KEYS = [ 'user_id' , 'target_id' ];
-
-    /** @var DATA_ASSIGN_UPDATE */
-    const DATA_ASSIGN_UPDATE = true;
-
-    /** @var INSERT_ROW_ACTIVE */
-    const INSERT_ROW_ACTIVE = true;
-
-    /** @var VALIDATOR */
-    const VALIDATOR = ContactValidator::class;
+    const PRIMARY_KEYS = [ 'user_id', 'discussion_id' ];
 
     /** @var MODEL */
-    const MODEL = Contact::class;
+    const MODEL = DiscussionUser::class;
+
+    const INSERT_ONE = false;
+    const UPDATE_ONE = false;
+    const DELETE_ONE = false;
 
     /**
      * Foreign Keys
@@ -44,7 +35,7 @@ class ContactController extends ApiModelController
     protected function foreignkeys() : array
     {
         return [
-            'user_id'=> $this->getUser()->id
+            // 'meeting_id'=> $this->getUser()->id
         ];
     }
 
@@ -72,7 +63,7 @@ class ContactController extends ApiModelController
     public function getOneRow(string $targetId) :? array
     {
         return parent::getOne([
-            'target_id' => $targetId
+            'id' => $targetId
         ]);
     }
 
@@ -85,7 +76,7 @@ class ContactController extends ApiModelController
     public function updateOneRow(string $targetId) :? array
     {
         return parent::updateOne([
-            'target_id' => $targetId
+            'id' => $targetId
         ]);
     }
 
@@ -98,7 +89,7 @@ class ContactController extends ApiModelController
     public function deleteOneRow(string $targetId) :? array
     {
         return parent::deleteOne([
-            'target_id' => $targetId
+            'id' => $targetId
         ]);
     }
 

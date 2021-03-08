@@ -49,5 +49,19 @@ class ContactValidator extends BaseValidation
                 ]
             )
         );
+        
+        $this->add(
+            'blocked',
+            new InclusionIn(
+                [
+                    'domain' => [
+                        self::ACTIVE,
+                        self::INACTIVE,
+                    ],
+                    'message' => 'The :field must be Active/Inactive',
+                    'allowEmpty'=>true
+                ]
+            )
+        );
     }
 }

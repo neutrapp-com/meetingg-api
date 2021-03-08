@@ -1,41 +1,33 @@
 <?php
 declare(strict_types=1);
 
-namespace Meetingg\Controllers\Contact;
+namespace Meetingg\Controllers;
 
-use Meetingg\Models\Group;
-use Meetingg\Validators\GroupValidator;
+use Meetingg\Models\Notification;
 use Meetingg\Controllers\Auth\ApiModelController;
 
 /**
  *  Landing Index Controller
  */
-class GroupController extends ApiModelController
+class NotificationController extends ApiModelController
 {
     /** @var ROW_TITLE */
-    const ROW_TITLE = 'group';
+    const ROW_TITLE = 'notification';
 
-    /** @var DATA_ASSIGN */
-    const DATA_ASSIGN = [ 'title' ];
+    /** @var DATA_ASSIGN_UPDATE */
+    const DATA_ASSIGN_UPDATE = [ 'status' ];
 
     /** @var FOREIGN_KEYS */
-    const FOREIGN_KEYS = [ 'user_id' ];
+    const FOREIGN_KEYS = [ 'user_id', 'sender_id', 'meeting_id', 'discussion_id' ];
 
     /** @var PRIMARY_KEYS */
     const PRIMARY_KEYS = [ 'id' ];
 
-    /** @var DATA_ASSIGN_UPDATE */
-    const DATA_ASSIGN_UPDATE = true;
-
     /** @var INSERT_ROW_ACTIVE */
-    const INSERT_ROW_ACTIVE = true;
-
-
-    /** @var VALIDATOR */
-    const VALIDATOR = GroupValidator::class;
+    const INSERT_ROW_ACTIVE = false;
 
     /** @var MODEL */
-    const MODEL = Group::class;
+    const MODEL = Notification::class;
 
     /**
      * Foreign Keys
@@ -78,6 +70,16 @@ class GroupController extends ApiModelController
     }
 
     /**
+     * Get All User Contact Rows
+     *
+     * @return array|null
+     */
+    public function getMyRows() :? array
+    {
+        return parent::getMy();
+    }
+
+    /**
      * Update One Row using target_id
      *
      * @param string uuid $targetId
@@ -88,28 +90,5 @@ class GroupController extends ApiModelController
         return parent::updateOne([
             'id' => $targetId
         ]);
-    }
-
-    /**
-     * Delete One Row using target_id
-     *
-     * @param string uuid $targetId
-     * @return array|null
-     */
-    public function deleteOneRow(string $targetId) :? array
-    {
-        return parent::deleteOne([
-            'id' => $targetId
-        ]);
-    }
-
-    /**
-     * Get All User Contact Rows
-     *
-     * @return array|null
-     */
-    public function getMyRows() :? array
-    {
-        return parent::getMy();
     }
 }

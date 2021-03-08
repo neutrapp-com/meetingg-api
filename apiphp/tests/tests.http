@@ -93,11 +93,11 @@ Content-Type: application/json
 
 
 ### -----------------------------------------------------------------------
-#
+### -----------------------------------------------------------------------
 #
 #   Group API
 #
-#
+### -----------------------------------------------------------------------
 ### -----------------------------------------------------------------------
 
 
@@ -174,11 +174,11 @@ Authorization: Bearer {{authToken}}
 Content-Type: application/json
 
 ### -----------------------------------------------------------------------
-#
+### -----------------------------------------------------------------------
 #
 #   Contact API
 #
-#
+### -----------------------------------------------------------------------
 ### -----------------------------------------------------------------------
 
 
@@ -222,7 +222,7 @@ Authorization: Bearer {{authToken}}
 Content-Type: application/json
 
 {
-    "title": "Updated {{contactTitle}}"
+    "title": "Remy Duclos:{{contactTitle}}"
 }
 
 #------------------------------------------------------------
@@ -233,3 +233,78 @@ POST {{baseUrl}}/contact/{{contactid}}/delete HTTP/1.1
 Authorization: Bearer {{authToken}}
 Content-Type: application/json
 
+
+### -----------------------------------------------------------------------
+### -----------------------------------------------------------------------
+#
+#   Notification API
+#
+### -----------------------------------------------------------------------
+### -----------------------------------------------------------------------
+
+@notificationTitle = Meeting UX Started
+
+
+#------------------------------------------------------------
+###
+# @name getMyNotifications
+@notificationid = {{getMyNotifications.response.body.$.rows[0].id}}
+
+GET {{baseUrl}}/notification/my HTTP/1.1
+Authorization: Bearer {{authToken}}
+Content-Type: application/json
+
+#------------------------------------------------------------
+###
+# @name getOneNotification
+
+GET {{baseUrl}}/notification/{{notificationid}} HTTP/1.1
+Authorization: Bearer {{authToken}}
+Content-Type: application/json
+
+#------------------------------------------------------------
+###
+# @name getOneNotificationByYWithoutPermission
+
+GET {{baseUrl}}/notification/{{notificationid}} HTTP/1.1
+Authorization: Bearer {{authTokenY}}
+Content-Type: application/json
+
+#------------------------------------------------------------
+###
+# @name updateNotification
+
+POST {{baseUrl}}/notification/{{notificationid}}/update HTTP/1.1
+Authorization: Bearer {{authToken}}
+Content-Type: application/json
+
+{
+    "status": 1
+}
+
+
+### -----------------------------------------------------------------------
+### -----------------------------------------------------------------------
+#
+#   Discussion User API
+#
+### -----------------------------------------------------------------------
+### -----------------------------------------------------------------------
+
+
+#------------------------------------------------------------
+###
+# @name getMyDiscussions
+@discussionid = {{getMyDiscussions.response.body.$.rows[0].id}}
+
+GET {{baseUrl}}/discussion/my HTTP/1.1
+Authorization: Bearer {{authToken}}
+Content-Type: application/json
+
+#------------------------------------------------------------
+###
+# @name getOneDiscussion
+
+GET {{baseUrl}}/discussion/{{discussionid}} HTTP/1.1
+Authorization: Bearer {{authToken}}
+Content-Type: application/json
