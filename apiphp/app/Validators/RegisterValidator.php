@@ -4,7 +4,6 @@ declare(strict_types=1);
 
 namespace Meetingg\Validators;
 
-use Phalcon\Validation;
 use Phalcon\Validation\Validator\Email;
 use Phalcon\Validation\Validator\Regex;
 use Phalcon\Validation\Validator\PresenceOf;
@@ -12,7 +11,7 @@ use Phalcon\Validation\Validator\InclusionIn;
 use Phalcon\Validation\Validator\StringLength;
 use Phalcon\Validation\Validator\Confirmation;
 
-class RegisterValidator extends Validation
+class RegisterValidator extends BaseValidation
 {
     public function initialize()
     {

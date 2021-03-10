@@ -3,9 +3,10 @@ declare(strict_types=1);
 
 namespace Meetingg\Controllers\Auth;
 
-use Meetingg\Exception\PublicException;
-use Meetingg\Http\StatusCodes;
 use Phalcon\Validation as EmptyValidator;
+
+use Meetingg\Http\StatusCodes;
+use Meetingg\Exception\PublicException;
 
 /**
  *  Landing Index Controller
@@ -18,8 +19,8 @@ class ApiModelController extends AuthentifiedController
     /** @var GET_MY */
     const GET_MY = true;
 
-    /** @var NEW_ONE */
-    const NEW_ONE = true;
+    /** @var INSERT_ONE */
+    const INSERT_ONE = true;
 
     /** @var UPDATE_ONE */
     const UPDATE_ONE = true;
@@ -37,8 +38,11 @@ class ApiModelController extends AuthentifiedController
     /** @var FOREIGN_KEYS */
     const FOREIGN_KEYS = [];
 
-    /** @var NEW_ROW_ACTIVE */
-    const NEW_ROW_ACTIVE = false;
+    /** @var FOREIGN_KEYS */
+    const PRIMARY_KEYS = ['id'];
+
+    /** @var INSERT_ROW_ACTIVE */
+    const INSERT_ROW_ACTIVE = false;
 
     /** @var UPDATE_ROW_ACTIVE */
     const UPDATE_ROW_ACTIVE = false;
@@ -49,8 +53,8 @@ class ApiModelController extends AuthentifiedController
     /** @var MODEL */
     const MODEL = null;
 
-    /** @var ROW_NAME */
-    const ROW_NAME = 'row';
+    /** @var ROW_TITLE */
+    const ROW_TITLE = 'Row';
 
     /**
      * Get My Row
@@ -62,7 +66,7 @@ class ApiModelController extends AuthentifiedController
         $selfClass = $this->getClass();
 
         if (false === $selfClass::GET_MY) {
-            throw new PublicException("Action forbidden");
+            throw new PublicException("Action forbidden", StatusCodes::HTTP_UNAUTHORIZED);
         }
         if (null === $selfClass::MODEL) {
             return ['action'=> __FUNCTION__,];
@@ -86,8 +90,8 @@ class ApiModelController extends AuthentifiedController
     {
         $selfClass = $this->getClass();
 
-        if (false === $selfClass::NEW_ONE) {
-            throw new PublicException("Action forbidden");
+        if (false === $selfClass::INSERT_ONE) {
+            throw new PublicException("Action forbidden", StatusCodes::HTTP_UNAUTHORIZED);
         }
         
         if (null === $selfClass::MODEL) {
@@ -123,34 +127,34 @@ class ApiModelController extends AuthentifiedController
         $row->assign($this->foreignkeys(), $selfClass::FOREIGN_KEYS);
 
         // row status
-        $row->setActive($selfClass::NEW_ROW_ACTIVE);
+        $row->setActive($selfClass::INSERT_ROW_ACTIVE);
 
         if (false === $row->create()) {
-            throw new \Exception(implode(',', $row->getMessages()));
+            throw new PublicException(implode(',', $row->getMessages()), StatusCodes::HTTP_BAD_REQUEST);
         }
 
         return [
-            'message' => $selfClass::ROW_NAME  . ' created successfully',
-            $selfClass::ROW_NAME => $row
+            'message' => $selfClass::ROW_TITLE  . ' created successfully',
+            'row' => $row
         ];
     }
 
     /**
      * Get One Row
      *
+     * @param array $data
      * @return array|null
      */
-    public function getOne(string $rowId) :? array
+    public function getOne(array $data = []) :? array
     {
         $selfClass = $this->getClass();
 
         if (false === $selfClass::GET_ONE) {
-            throw new PublicException("Action forbidden");
+            throw new PublicException("Action forbidden", StatusCodes::HTTP_UNAUTHORIZED);
         }
 
-        self::validUUIDOrThrowException($rowId);
         if (null === $selfClass::MODEL) {
-            return ['action'=> __FUNCTION__,'id'=>$rowId];
+            return ['action'=> __FUNCTION__,'data'=> $data];
         }
 
         /**
@@ -158,15 +162,16 @@ class ApiModelController extends AuthentifiedController
          * Find One Row
          */
         $modelName = $selfClass::MODEL;
-        $findParams = $this->mixModelFindParams([
-            'id = :id:',
-            'bind'=> [
-                'id'=> $rowId
-            ]
-        ]);
+        $findParams = $this->generateFindParams($data);
 
+        /**
+         * Model Query Result
+         */
         $row = self::findFirstOrThrowException($modelName, $findParams);
 
+        /**
+         * Return Final Result
+         */
         return [
             'row'=> $row
         ];
@@ -175,19 +180,19 @@ class ApiModelController extends AuthentifiedController
     /**
      * Update One Row
      *
+     * @param array $data
      * @return array|null
      */
-    public function updateOne(string $rowId) :? array
+    public function updateOne(array $data = []) :? array
     {
         $selfClass = $this->getClass();
 
         if (false === $selfClass::UPDATE_ONE) {
-            throw new PublicException("Action forbidden");
+            throw new PublicException("Action forbidden", StatusCodes::HTTP_UNAUTHORIZED);
         }
         
-        self::validUUIDOrThrowException($rowId);
         if (null === $selfClass::MODEL) {
-            return ['action'=> __FUNCTION__,'id'=>$rowId];
+            return ['action'=> __FUNCTION__,'data'=>$data];
         }
 
         /**
@@ -206,16 +211,12 @@ class ApiModelController extends AuthentifiedController
         }
 
         /**
-         * Data Update
+         * Dynamic Action
+         * Find One Row
          */
         $modelName = $selfClass::MODEL;
-        $findParams = $this->mixModelFindParams([
-            'id = :id:',
-            'bind'=> [
-                'id'=> $rowId
-            ]
-        ]);
-
+        $findParams = $this->generateFindParams($data);
+    
         $row = self::findFirstOrThrowException($modelName, $findParams);
 
         $updateColumns = $selfClass::DATA_ASSIGN_UPDATE;
@@ -229,55 +230,49 @@ class ApiModelController extends AuthentifiedController
         $row->setActive($selfClass::UPDATE_ROW_ACTIVE);
 
         if (false === $row->update()) {
-            throw new \Exception(implode(',', $row->getMessages()));
+            throw new PublicException(implode(',', $row->getMessages()), StatusCodes::HTTP_BAD_REQUEST);
         }
 
         return [
-            'message' => $selfClass::ROW_NAME  . ' updated successfully',
-            $selfClass::ROW_NAME => $row
+            'message' => $selfClass::ROW_TITLE  . ' updated successfully',
+            'row' => $row
         ];
     }
 
     /**
      * Delete One Row
      *
+     * @param array $data
      * @return array|null
      */
-    public function deleteOne(string $rowId) :? array
+    public function deleteOne(array $data = []) :? array
     {
         $selfClass = $this->getClass();
 
         if (false === $selfClass::DELETE_ONE) {
-            throw new PublicException("Action forbidden");
+            throw new PublicException("Action forbidden", StatusCodes::HTTP_UNAUTHORIZED);
         }
 
-        self::validUUIDOrThrowException($rowId);
         if (null === $selfClass::MODEL) {
-            return ['action'=> __FUNCTION__,'id'=>$rowId];
+            return ['action'=> __FUNCTION__, 'data'=>$data];
         }
 
         /**
-         * Data Delete
+         * Dynamic Action
+         * Find One Row
          */
         $modelName = $selfClass::MODEL;
-        $findParams = $this->mixModelFindParams([
-            'id = :id:',
-            'bind'=> [
-                'id'=> $rowId
-            ]
-        ]);
+        $findParams = $this->generateFindParams($data);
 
         $row = self::findFirstOrThrowException($modelName, $findParams);
         
         if (false === $row->delete()) {
-            throw new \Exception(implode(',', $row->getMessages()));
+            throw new PublicException(implode(',', $row->getMessages()), StatusCodes::HTTP_BAD_REQUEST);
         }
 
         return [
-            'message' => $selfClass::ROW_NAME  . ' deleted successfully',
-            $selfClass::ROW_NAME => [
-                'id'=> $rowId
-            ]
+            'message' => $selfClass::ROW_TITLE  . ' deleted successfully',
+            'row' => $row
         ];
     }
 
@@ -322,6 +317,9 @@ class ApiModelController extends AuthentifiedController
         if (true === is_null($modelParams)) {
             return $params;
         }
+        if (true === is_null($params)) {
+            return $modelParams;
+        }
 
         $newModelParams = [
             $modelParams[0] . ' and ' . $params[0],
@@ -340,13 +338,45 @@ class ApiModelController extends AuthentifiedController
 
 
     /**
+     * Generate Find Params By Primary Keys
+     *
+     * @param [type] $data
+     * @return array
+     */
+    protected function generateFindParams($data) : array
+    {
+        /**
+         * Dynamic Query Condition Generate With Primary Keys
+         */
+        $queryCondition = implode(" and ", array_map(function ($key) {
+            return "$key = :$key:";
+        }, $this->getClass()::PRIMARY_KEYS));
+
+        $bindData = [];
+        foreach ($this->getClass()::PRIMARY_KEYS as $key) {
+            $bindData[$key] = $data[$key] ?? null;
+        }
+ 
+        /**
+         * Final Model Query Params
+         */
+        $findParams = $this->mixModelFindParams([
+            $queryCondition,
+            'bind'=> $bindData
+        ]);
+
+        return $findParams;
+    }
+
+
+    /**
      * Find Or Throw Exception
      *
      * @param string $modelName
      * @param array|null $findParams
      * @return void
      */
-    public static function findFirstOrThrowException(string $modelName, ?array $findParams)
+    public static function findFirstOrThrowException(string $modelName, ?array $findParams) : object
     {
         $row = $modelName::findFirst($findParams);
         if (true === is_null($row)) {
