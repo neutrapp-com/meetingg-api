@@ -12,6 +12,7 @@ use Meetingg\Exception\PublicException;
 use Meetingg\Controllers\Auth\ApiModelController;
 use Meetingg\Library\Permissions;
 use Meetingg\Models\Discussion\User as DiscussionUser;
+use Meetingg\Models\Message;
 
 /**
  *  Landing Index Controller
@@ -22,13 +23,13 @@ class DiscussionController extends ApiModelController
     const ROW_TITLE = 'Discussion';
 
     /** @var FOREIGN_KEYS */
-    const FOREIGN_KEYS = [ 'user_id', 'discussion_id' ];
+    const FOREIGN_KEYS = [ 'id' ];
 
     /** @var PRIMARY_KEYS */
-    const PRIMARY_KEYS = [ 'user_id', 'discussion_id' ];
+    const PRIMARY_KEYS = [ 'id' ];
 
     /** @var MODEL */
-    const MODEL = DiscussionUser::class;
+    const MODEL = Discussion::class;
 
     const DELETE_ONE = false;
 
@@ -39,9 +40,7 @@ class DiscussionController extends ApiModelController
      */
     protected function foreignkeys() : array
     {
-        return [
-            // 'meeting_id'=> $this->getUser()->id
-        ];
+        return [];
     }
 
     /**
@@ -51,12 +50,7 @@ class DiscussionController extends ApiModelController
      */
     protected function modelFindParams() : array
     {
-        return [
-            'user_id = :userid:',
-            'bind'=>  [
-                'userid'=> $this->getUser()->id
-            ]
-        ];
+        return [];
     }
 
     /**
@@ -134,10 +128,7 @@ class DiscussionController extends ApiModelController
     public function getOneRow(string $targetId) :? array
     {
         return [
-            'row' =>
-            parent::getOne([
-                'id' => $targetId
-            ])->Discussion->toArray()
+            'row' => $this->getDiscussion($targetId)->getProfile()
         ];
     }
 
@@ -148,8 +139,62 @@ class DiscussionController extends ApiModelController
      */
     public function getMyRows() :? array
     {
+        $rows = [];
+        foreach ($this->getUser()->getDiscussions() as $discussion) {
+            array_push($rows, $discussion->getProfile());
+        }
         return [
-            'rows'=> parent::getMy()
+            'rows'=> $rows
         ];
+    }
+
+    /**
+     * Get Messages by discussion
+     *
+     * @param string $discussionId
+     * @return array|null
+     */
+    public function getMessages(string $targetId) :? array
+    {
+        $discussion = $this->getDiscussion($targetId);
+
+        /**
+         * Fetch Messages
+         */
+        $max_date = Discussion::getTime();
+
+        $messages = [];
+        foreach (Message::find([
+            'discussion_id = :discussion_id: AND created_at > :max_date:',
+            'bind' => [
+                'discussion_id' => $discussion->id,
+                'max_date'=> $max_date
+            ],
+            'order'=>'created_at DESC',
+            'limit'=> 20
+        ]) as $message) {
+            $messages[] = $message->getArray(['user_id','content','file','meta_file','starred','status','created_at']);
+        }
+
+        return [
+            'rows' => $messages
+        ];
+    }
+
+    /**
+     * Get Discussion By Id & User
+     *
+     * @param string $discussionId
+     * @return object|null
+     */
+    private function getDiscussion(string $discussionId) :? object
+    {
+        $discussion = Discussion::userDiscussion($discussionId, $this->getUser()->id);
+        
+        if (true === is_null($discussion)) {
+            throw new PublicException("Row does not exist", StatusCodes::HTTP_NOT_FOUND);
+        }
+
+        return $discussion;
     }
 }

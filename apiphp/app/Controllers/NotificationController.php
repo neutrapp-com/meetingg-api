@@ -29,6 +29,9 @@ class NotificationController extends ApiModelController
     /** @var MODEL */
     const MODEL = Notification::class;
 
+    /** @var ROW_KEYS */
+    const ROW_KEYS = ['id','title','content','status','created_at','sender_id'];
+
     /**
      * Foreign Keys
      *
@@ -63,8 +66,15 @@ class NotificationController extends ApiModelController
      */
     public function getMyRows() :? array
     {
+        $rows = parent::getMy();
+        $items = [];
+        
+        foreach ($rows as $row) {
+            $items[] = $row->getArray(self::ROW_KEYS);
+        }
+
         return [
-            'rows'=> parent::getMy()
+            'rows'=> $items
         ];
     }
 
@@ -80,7 +90,7 @@ class NotificationController extends ApiModelController
             'row' =>
             parent::getOne([
                 'id' => $targetId
-            ])
+            ])->getArray(self::ROW_KEYS)
         ];
     }
 

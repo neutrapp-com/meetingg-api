@@ -11,7 +11,6 @@ use Phalcon\Validation\Validator\Uniqueness;
 use Phalcon\Validation\Validator\StringLength;
 use Phalcon\Validation\Validator\InclusionIn;
 
-
 use Lcobucci\JWT\Token;
 use Meetingg\Library\Country;
 use Meetingg\Models\Discussion\User as DiscussionUser;
@@ -133,6 +132,7 @@ class User extends BaseModel
             Discussion::class,
             'id',
             [
+                'reusable' => true,
                 'alias'=>'Discussions'
             ]
         );
@@ -145,6 +145,7 @@ class User extends BaseModel
             Meeting::class,
             'id',
             [
+                'reusable' => true,
                 'alias'=>'Meetings'
             ]
         );
@@ -311,8 +312,8 @@ class User extends BaseModel
     {
         parent::beforeCreate();
 
-        $this->username = self::getRandomUsername();
-        $this->password = self::hashPassword($this->password);
+        $this->username = $this->getRandomUsername();
+        $this->password = $this->hashPassword($this->password);
     }
     
     /**

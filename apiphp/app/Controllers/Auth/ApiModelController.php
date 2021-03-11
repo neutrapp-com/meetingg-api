@@ -292,10 +292,10 @@ class ApiModelController extends AuthentifiedController
     protected function mixModelFindParams(array $params = []) :? array
     {
         $modelParams = $this->modelFindParams();
-        if (true === is_null($modelParams)) {
+        if (true === is_null($modelParams) || 0 === count($modelParams)) {
             return $params;
         }
-        if (true === is_null($params)) {
+        if (true === is_null($params) || 0 === count($params)) {
             return $modelParams;
         }
 

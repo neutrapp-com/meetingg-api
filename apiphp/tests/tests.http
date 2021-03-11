@@ -304,7 +304,6 @@ Content-Type: application/json
 #------------------------------------------------------------
 ###
 # @name getMyDiscussions
-@discussionid = {{getMyDiscussions.response.body.$.rows[0].id}}
 
 GET {{baseUrl}}/discussion/my HTTP/1.1
 Authorization: Bearer {{authToken}}
@@ -313,7 +312,25 @@ Content-Type: application/json
 #------------------------------------------------------------
 ###
 # @name getOneDiscussion
+@discussionid = {{getMyDiscussions.response.body.$.rows[0].id}}
 
 GET {{baseUrl}}/discussion/{{discussionid}} HTTP/1.1
 Authorization: Bearer {{authToken}}
 Content-Type: application/json
+
+#------------------------------------------------------------
+###
+# @name getDiscussionMessages
+
+GET {{baseUrl}}/discussion/{{discussionid}}/messages HTTP/1.1
+Authorization: Bearer {{authToken}}
+Content-Type: application/json
+
+
+
+
+### todo inviteOneDiscussion
+### todo updateOneDiscussion
+### todo deleteOneDiscussion
+### todo leaveOneDiscussion
+

@@ -117,4 +117,30 @@ class Discussion extends BaseModel
 
         return $profile;
     }
+
+    /**
+     * Get Discussion & User
+     *
+     * @param string $discussionId
+     * @param string $userId
+     * @return self|null
+     */
+    public static function userDiscussion(string $discussionId, string $userId) :? self
+    {
+        if (false === self::validUUID($discussionId)) {
+            return null;
+        }
+
+        return self::query()
+            ->join(DiscussionUser::class, "du.discussion_id = ".self::class.".id AND du.user_id = :user_id:", "du")
+            ->andWhere(self::class.'.id = :target_id:')
+            ->bind(
+                [
+                    'user_id' => $userId,
+                    'target_id' => $discussionId
+                ]
+            )
+            ->execute()
+            ->getFirst();
+    }
 }
