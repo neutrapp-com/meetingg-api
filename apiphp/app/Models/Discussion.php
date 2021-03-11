@@ -2,6 +2,9 @@
 
 namespace Meetingg\Models;
 
+use Meetingg\Models\User;
+use Meetingg\Models\Discussion\User as DiscussionUser;
+
 class Discussion extends BaseModel
 {
 
@@ -72,5 +75,46 @@ class Discussion extends BaseModel
 
         $this->hasMany('id', 'Meetingg\Models\Notification', 'discussion_id', ['alias' => 'Notification']);
         $this->hasMany('id', 'Meetingg\Models\Discussion\User', 'discussion_id', ['alias' => 'DiscussionUsers']);
+
+        $this->hasManyToMany(
+            'id',
+            DiscussionUser::class,
+            'discussion_id',
+            'user_id',
+            User::class,
+            'id',
+            [
+                'reusable' => true,
+                'alias'=> 'Users'
+            ]
+        );
+    }
+
+    /**
+     * Get Discussion Profile
+     *
+     * @return array
+     */
+    public function getProfile() : array
+    {
+        $profile = [
+            'users' => []
+        ];
+
+        /**
+         * Users toArray
+         */
+        foreach ($this->Users ?: [] as $user) {
+            array_push($profile['users'], $user->getProfile([], ['id','firstname','lastname','avatar'], true));
+        }
+        
+        /**
+         * Self toArray
+         */
+        foreach (['id', 'title' ,'avatar' , 'color','created_at','updated_at'] as $key) {
+            $profile[$key] = $this->$key;
+        }
+
+        return $profile;
     }
 }

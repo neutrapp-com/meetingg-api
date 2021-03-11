@@ -57,10 +57,53 @@ class GroupController extends ApiModelController
     protected function modelFindParams() : array
     {
         return [
-            'user_id = :userid:',
+            'user_id = :user_id:',
             'bind'=>  [
-                'userid'=> $this->getUser()->id
+                'user_id'=> $this->getUser()->id
             ]
+        ];
+    }
+
+    /**
+     * New One Row
+     *
+     * @param string uuid $targetId
+     * @return array|null
+     */
+    public function newOneRow() :? array
+    {
+        return [
+            'row' => parent::newOne()
+        ];
+    }
+
+    /**
+     * Update One Row using target_id
+     *
+     * @param string uuid $targetId
+     * @return array|null
+     */
+    public function updateOneRow(string $targetId) :? array
+    {
+        return [
+            'row' => parent::updateOne([
+                'id' => $targetId
+            ])
+        ];
+    }
+
+    /**
+     * Delete One Row using target_id
+     *
+     * @param string uuid $targetId
+     * @return array|null
+     */
+    public function deleteOneRow(string $targetId) :? array
+    {
+        return [
+            'row' => parent::deleteOne([
+                'id' => $targetId
+            ])
         ];
     }
 
@@ -72,44 +115,23 @@ class GroupController extends ApiModelController
      */
     public function getOneRow(string $targetId) :? array
     {
-        return parent::getOne([
-            'id' => $targetId
-        ]);
+        return [
+            'row' =>
+            parent::getOne([
+                'id' => $targetId
+            ])
+        ];
     }
 
     /**
-     * Update One Row using target_id
-     *
-     * @param string uuid $targetId
-     * @return array|null
-     */
-    public function updateOneRow(string $targetId) :? array
-    {
-        return parent::updateOne([
-            'id' => $targetId
-        ]);
-    }
-
-    /**
-     * Delete One Row using target_id
-     *
-     * @param string uuid $targetId
-     * @return array|null
-     */
-    public function deleteOneRow(string $targetId) :? array
-    {
-        return parent::deleteOne([
-            'id' => $targetId
-        ]);
-    }
-
-    /**
-     * Get All User Contact Rows
+     * Get All User Rows
      *
      * @return array|null
      */
     public function getMyRows() :? array
     {
-        return parent::getMy();
+        return [
+            'rows'=> parent::getMy()
+        ];
     }
 }

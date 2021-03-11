@@ -222,7 +222,7 @@ Authorization: Bearer {{authToken}}
 Content-Type: application/json
 
 {
-    "title": "Remy Duclos:{{contactTitle}}"
+    "title": "Remy {{contactTitle}}"
 }
 
 #------------------------------------------------------------
@@ -291,6 +291,15 @@ Content-Type: application/json
 ### -----------------------------------------------------------------------
 ### -----------------------------------------------------------------------
 
+
+
+#------------------------------------------------------------
+###
+# @name newDiscussion
+
+POST {{baseUrl}}/discussion/{{userIdY}}/new HTTP/1.1
+Authorization: Bearer {{authToken}}
+Content-Type: application/json
 
 #------------------------------------------------------------
 ###

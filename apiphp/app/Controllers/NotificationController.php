@@ -42,7 +42,7 @@ class NotificationController extends ApiModelController
     }
 
     /**
-     * modal Find Params
+     * Modal Find Params
      *
      * @return array
      */
@@ -57,38 +57,47 @@ class NotificationController extends ApiModelController
     }
 
     /**
-     * Get One Row using target_id
+     * Get All User Rows
+     *
+     * @return array|null
+     */
+    public function getMyRows() :? array
+    {
+        return [
+            'rows'=> parent::getMy()
+        ];
+    }
+
+    /**
+     * Get One Row using id
      *
      * @param string uuid $targetId
      * @return array|null
      */
     public function getOneRow(string $targetId) :? array
     {
-        return parent::getOne([
-            'id' => $targetId
-        ]);
+        return [
+            'row' =>
+            parent::getOne([
+                'id' => $targetId
+            ])
+        ];
     }
 
     /**
-     * Get All User Contact Rows
-     *
-     * @return array|null
-     */
-    public function getMyRows() :? array
-    {
-        return parent::getMy();
-    }
-
-    /**
-     * Update One Row using target_id
+     * Update One Row using id
      *
      * @param string uuid $targetId
      * @return array|null
      */
     public function updateOneRow(string $targetId) :? array
     {
-        return parent::updateOne([
+        parent::updateOne([
             'id' => $targetId
         ]);
+
+        return [
+            'update' => true
+        ];
     }
 }
