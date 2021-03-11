@@ -29,6 +29,9 @@ class NotificationController extends ApiModelController
     /** @var MODEL */
     const MODEL = Notification::class;
 
+    /** @var ROW_KEYS */
+    const ROW_KEYS = ['id','title','content','status','created_at','sender_id'];
+
     /**
      * Foreign Keys
      *
@@ -42,7 +45,7 @@ class NotificationController extends ApiModelController
     }
 
     /**
-     * modal Find Params
+     * Modal Find Params
      *
      * @return array
      */
@@ -57,38 +60,54 @@ class NotificationController extends ApiModelController
     }
 
     /**
-     * Get One Row using target_id
+     * Get All User Rows
+     *
+     * @return array|null
+     */
+    public function getMyRows() :? array
+    {
+        $rows = parent::getMy();
+        $items = [];
+        
+        foreach ($rows as $row) {
+            $items[] = $row->getArray(self::ROW_KEYS);
+        }
+
+        return [
+            'rows'=> $items
+        ];
+    }
+
+    /**
+     * Get One Row using id
      *
      * @param string uuid $targetId
      * @return array|null
      */
     public function getOneRow(string $targetId) :? array
     {
-        return parent::getOne([
-            'id' => $targetId
-        ]);
+        return [
+            'row' =>
+            parent::getOne([
+                'id' => $targetId
+            ])->getArray(self::ROW_KEYS)
+        ];
     }
 
     /**
-     * Get All User Contact Rows
-     *
-     * @return array|null
-     */
-    public function getMyRows() :? array
-    {
-        return parent::getMy();
-    }
-
-    /**
-     * Update One Row using target_id
+     * Update One Row using id
      *
      * @param string uuid $targetId
      * @return array|null
      */
     public function updateOneRow(string $targetId) :? array
     {
-        return parent::updateOne([
+        parent::updateOne([
             'id' => $targetId
         ]);
+
+        return [
+            'update' => true
+        ];
     }
 }

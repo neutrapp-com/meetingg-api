@@ -7,6 +7,7 @@ use Phalcon\Di\FactoryDefault;
 
 define('BASE_PATH', dirname(__DIR__));
 define('APP_PATH', BASE_PATH . '/app');
+define('UUID_REGEX', '[0-9a-z]{8}-[0-9a-z]{4}-[0-9a-z]{4}-[0-9a-z]{4}-[0-9a-z]{12}');
  
 /**
  * The FactoryDefault Dependency Injector automatically registers the services that

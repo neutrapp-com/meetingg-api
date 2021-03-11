@@ -222,7 +222,7 @@ Authorization: Bearer {{authToken}}
 Content-Type: application/json
 
 {
-    "title": "Remy Duclos:{{contactTitle}}"
+    "title": "Remy {{contactTitle}}"
 }
 
 #------------------------------------------------------------
@@ -292,10 +292,18 @@ Content-Type: application/json
 ### -----------------------------------------------------------------------
 
 
+
+#------------------------------------------------------------
+###
+# @name newDiscussion
+
+POST {{baseUrl}}/discussion/{{userIdY}}/new HTTP/1.1
+Authorization: Bearer {{authToken}}
+Content-Type: application/json
+
 #------------------------------------------------------------
 ###
 # @name getMyDiscussions
-@discussionid = {{getMyDiscussions.response.body.$.rows[0].id}}
 
 GET {{baseUrl}}/discussion/my HTTP/1.1
 Authorization: Bearer {{authToken}}
@@ -304,7 +312,60 @@ Content-Type: application/json
 #------------------------------------------------------------
 ###
 # @name getOneDiscussion
+@discussionid = {{getMyDiscussions.response.body.$.rows[0].id}}
 
 GET {{baseUrl}}/discussion/{{discussionid}} HTTP/1.1
+Authorization: Bearer {{authToken}}
+Content-Type: application/json
+
+#------------------------------------------------------------
+###
+# @name getDiscussionMessages
+
+GET {{baseUrl}}/discussion/{{discussionid}}/messages HTTP/1.1
+Authorization: Bearer {{authToken}}
+Content-Type: application/json
+
+
+### todo inviteOneDiscussion
+### todo updateOneDiscussion
+### todo deleteOneDiscussion
+### todo leaveOneDiscussion
+
+
+### -----------------------------------------------------------------------
+### -----------------------------------------------------------------------
+#
+#   Message User API
+#
+### -----------------------------------------------------------------------
+### -----------------------------------------------------------------------
+
+#------------------------------------------------------------
+###
+# @name sendMessage
+
+POST {{baseUrl}}/message/{{discussionid}} HTTP/1.1
+Authorization: Bearer {{authToken}}
+Content-Type: application/json
+
+{
+    "content":"wsup guys!"
+}
+
+#------------------------------------------------------------
+###
+# @name getMyMessages
+
+GET {{baseUrl}}/message/{{discussionid}} HTTP/1.1
+Authorization: Bearer {{authToken}}
+Content-Type: application/json
+
+#------------------------------------------------------------
+###
+# @name getOneMessage
+@Messageid = {{getMyMessages.response.body.$.rows[0].id}}
+
+GET {{baseUrl}}/message/{{discussionid}} HTTP/1.1
 Authorization: Bearer {{authToken}}
 Content-Type: application/json

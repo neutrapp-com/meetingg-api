@@ -27,7 +27,7 @@ class User extends BaseModel
 
     /**
      *
-     * @var string
+     * @var integer
      */
     public $permissions;
 

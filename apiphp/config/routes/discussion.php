@@ -12,8 +12,11 @@ $collection
 // getters
     ->get("/", "index", "public")
 
-    ->get("/my", "getMy")
-    ->get("/{id:[0-9a-z]{8}-[0-9a-z]{4}-[0-9a-z]{4}-[0-9a-z]{4}-[0-9a-z]{12}}", "getOneRow")
+    ->get("/my", "getMyRows")
+    ->get("/{id:".UUID_REGEX."}", "getOneRow")
+    ->get("/{id:".UUID_REGEX."}/messages", "getMessages")
+// actions
+    ->post("/{id:".UUID_REGEX."}/new", "newDiscussion")
     ;
 
 

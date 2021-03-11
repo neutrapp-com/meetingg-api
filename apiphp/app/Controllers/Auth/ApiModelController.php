@@ -53,15 +53,12 @@ class ApiModelController extends AuthentifiedController
     /** @var MODEL */
     const MODEL = null;
 
-    /** @var ROW_TITLE */
-    const ROW_TITLE = 'Row';
-
     /**
      * Get My Row
      *
      * @return array|null
      */
-    public function getMy() :? array
+    public function getMy() : object
     {
         $selfClass = $this->getClass();
 
@@ -75,18 +72,15 @@ class ApiModelController extends AuthentifiedController
         // dynamic action
         $model = $selfClass::MODEL;
 
-        $rows = $model::find($this->modelFindParams());
-
-        return [
-            'rows' => $rows
-        ];
+        return $model::find($this->modelFindParams());
     }
+
     /**
      * New One Row
      *
-     * @return array|null
+     * @return self|null
      */
-    public function newOne() :? array
+    public function newOne() : object
     {
         $selfClass = $this->getClass();
 
@@ -133,19 +127,16 @@ class ApiModelController extends AuthentifiedController
             throw new PublicException(implode(',', $row->getMessages()), StatusCodes::HTTP_BAD_REQUEST);
         }
 
-        return [
-            'message' => $selfClass::ROW_TITLE  . ' created successfully',
-            'row' => $row
-        ];
+        return $row;
     }
 
     /**
      * Get One Row
      *
      * @param array $data
-     * @return array|null
+     * @return object|null
      */
-    public function getOne(array $data = []) :? array
+    public function getOne(array $data = []) : object
     {
         $selfClass = $this->getClass();
 
@@ -167,23 +158,16 @@ class ApiModelController extends AuthentifiedController
         /**
          * Model Query Result
          */
-        $row = self::findFirstOrThrowException($modelName, $findParams);
-
-        /**
-         * Return Final Result
-         */
-        return [
-            'row'=> $row
-        ];
+        return self::findFirstOrThrowException($modelName, $findParams);
     }
 
     /**
      * Update One Row
      *
      * @param array $data
-     * @return array|null
+     * @return array
      */
-    public function updateOne(array $data = []) :? array
+    public function updateOne(array $data = []) : object
     {
         $selfClass = $this->getClass();
 
@@ -233,10 +217,7 @@ class ApiModelController extends AuthentifiedController
             throw new PublicException(implode(',', $row->getMessages()), StatusCodes::HTTP_BAD_REQUEST);
         }
 
-        return [
-            'message' => $selfClass::ROW_TITLE  . ' updated successfully',
-            'row' => $row
-        ];
+        return $row;
     }
 
     /**
@@ -245,7 +226,7 @@ class ApiModelController extends AuthentifiedController
      * @param array $data
      * @return array|null
      */
-    public function deleteOne(array $data = []) :? array
+    public function deleteOne(array $data = []) : object
     {
         $selfClass = $this->getClass();
 
@@ -270,10 +251,7 @@ class ApiModelController extends AuthentifiedController
             throw new PublicException(implode(',', $row->getMessages()), StatusCodes::HTTP_BAD_REQUEST);
         }
 
-        return [
-            'message' => $selfClass::ROW_TITLE  . ' deleted successfully',
-            'row' => $row
-        ];
+        return $row;
     }
 
     /**
@@ -314,10 +292,10 @@ class ApiModelController extends AuthentifiedController
     protected function mixModelFindParams(array $params = []) :? array
     {
         $modelParams = $this->modelFindParams();
-        if (true === is_null($modelParams)) {
+        if (true === is_null($modelParams) || 0 === count($modelParams)) {
             return $params;
         }
-        if (true === is_null($params)) {
+        if (true === is_null($params) || 0 === count($params)) {
             return $modelParams;
         }
 
@@ -335,7 +313,6 @@ class ApiModelController extends AuthentifiedController
         
         return array_merge($newModelParams, array_merge($params, $modelParams));
     }
-
 
     /**
      * Generate Find Params By Primary Keys
@@ -368,13 +345,12 @@ class ApiModelController extends AuthentifiedController
         return $findParams;
     }
 
-
     /**
      * Find Or Throw Exception
      *
      * @param string $modelName
      * @param array|null $findParams
-     * @return void
+     * @return object|null
      */
     public static function findFirstOrThrowException(string $modelName, ?array $findParams) : object
     {
@@ -382,7 +358,6 @@ class ApiModelController extends AuthentifiedController
         if (true === is_null($row)) {
             throw new PublicException("Row does not exist !", StatusCodes::HTTP_NOT_FOUND);
         }
-
 
         return $row;
     }

@@ -12,12 +12,12 @@ $collection
 // getters
     ->get("/", "index", "public")
 
-    ->get("/my", "getMy")
-    ->get("/{id:[0-9a-z]{8}-[0-9a-z]{4}-[0-9a-z]{4}-[0-9a-z]{4}-[0-9a-z]{12}}", "getOneRow")
+    ->get("/my", "getMyRows")
+    ->get("/{id:".UUID_REGEX."}", "getOneRow")
 // actions
-    ->post("/new", "newOne")
-    ->post("/{id:[0-9a-z]{8}-[0-9a-z]{4}-[0-9a-z]{4}-[0-9a-z]{4}-[0-9a-z]{12}}/update", "updateOneRow")
-    ->post("/{id:[0-9a-z]{8}-[0-9a-z]{4}-[0-9a-z]{4}-[0-9a-z]{4}-[0-9a-z]{12}}/delete", "deleteOneRow")
+    ->post("/new", "newOneRow")
+    ->post("/{id:".UUID_REGEX."}/update", "updateOneRow")
+    ->post("/{id:".UUID_REGEX."}/delete", "deleteOneRow")
     ;
 
 

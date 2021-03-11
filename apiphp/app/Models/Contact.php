@@ -132,4 +132,22 @@ class Contact extends BaseModel
 
         return $this->validate($validator);
     }
+
+    /**
+     * Get Contact Profile
+     *
+     * @return array
+     */
+    public function getProfile() : array
+    {
+        $profile = [
+            'user' => $this->User->getProfile([], ['firstname','lastname','avatar'], true)
+        ];
+
+        foreach (['target_id', 'title','stared','blocked','blocked_at','created_at','updated_at'] as $key) {
+            $profile[$key] = $this->$key;
+        }
+
+        return $profile;
+    }
 }

@@ -56,10 +56,23 @@ class ContactController extends ApiModelController
     protected function modelFindParams() : array
     {
         return [
-            'user_id = :userid:',
+            'user_id = :user_id:',
             'bind'=>  [
-                'userid'=> $this->getUser()->id
+                'user_id'=> $this->getUser()->id
             ]
+        ];
+    }
+
+    /**
+     * New One Row
+     *
+     * @param string uuid $targetId
+     * @return array|null
+     */
+    public function newOneRow() :? array
+    {
+        return [
+            'row' => parent::newOne()->getProfile()
         ];
     }
 
@@ -71,9 +84,12 @@ class ContactController extends ApiModelController
      */
     public function getOneRow(string $targetId) :? array
     {
-        return parent::getOne([
-            'target_id' => $targetId
-        ]);
+        return [
+            'row' =>
+            parent::getOne([
+                'target_id' => $targetId
+            ])->getProfile()
+        ];
     }
 
     /**
@@ -84,9 +100,13 @@ class ContactController extends ApiModelController
      */
     public function updateOneRow(string $targetId) :? array
     {
-        return parent::updateOne([
+        parent::updateOne([
             'target_id' => $targetId
         ]);
+
+        return [
+            'update' => true
+        ];
     }
 
     /**
@@ -97,9 +117,13 @@ class ContactController extends ApiModelController
      */
     public function deleteOneRow(string $targetId) :? array
     {
-        return parent::deleteOne([
+        parent::deleteOne([
             'target_id' => $targetId
         ]);
+        
+        return [
+            'delete' => true
+        ];
     }
 
     /**
@@ -109,6 +133,15 @@ class ContactController extends ApiModelController
      */
     public function getMyRows() :? array
     {
-        return parent::getMy();
+        $rows = parent::getMy();
+        $items = [];
+
+        foreach ($rows as $row) {
+            array_push($items, $row->getProfile());
+        }
+
+        return [
+            'rows' => $items
+        ];
     }
 }

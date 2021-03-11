@@ -116,6 +116,23 @@ class BaseModel extends Model implements SharedConstInterface
     }
 
     /**
+     * Get Array of Keys-Values
+     *
+     * @param array $keys
+     * @return array
+     */
+    public function getArray(array $keys) : array
+    {
+        $item = [];
+
+        foreach ($keys as $key) {
+            $item[$key] = $this->$key ?: null;
+        }
+
+        return $item;
+    }
+
+    /**
      * Set Client Ip
      *
      * @param String $clientIp

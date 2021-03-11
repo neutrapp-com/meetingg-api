@@ -13,12 +13,12 @@ $collection
     ->get("/", "index", "public")
 
     ->get("/my", "getMyEvents")
-    ->get("/{id:[0-9a-z]{8}-[0-9a-z]{4}-[0-9a-z]{4}-[0-9a-z]{4}-[0-9a-z]{12}}", "getevent")
+    ->get("/{id:".UUID_REGEX."}", "getevent")
 // users
-    ->get("/{id:[0-9a-z]{8}-[0-9a-z]{4}-[0-9a-z]{4}-[0-9a-z]{4}-[0-9a-z]{12}}/users", "getUsers")
+    ->get("/{id:".UUID_REGEX."}/users", "getUsers")
     // actions
     ->post("/new", "newevent")
-    ->post("/{id:[0-9a-z]{8}-[0-9a-z]{4}-[0-9a-z]{4}-[0-9a-z]{4}-[0-9a-z]{12}}/update", "updateEvent")
+    ->post("/{id:".UUID_REGEX."}/update", "updateEvent")
     ->post("/delete", "deleteEvent") // todo(skip for v2)
     ;
 
