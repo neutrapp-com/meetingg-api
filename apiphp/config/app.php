@@ -1,4 +1,5 @@
 <?php
+defined('UUID_REGEX') || define('UUID_REGEX', '[0-9a-z]{8}-[0-9a-z]{4}-[0-9a-z]{4}-[0-9a-z]{4}-[0-9a-z]{12}');
 /**
  * Local variables
  * @var \Phalcon\Mvc\Micro $app

@@ -154,30 +154,32 @@ class DiscussionController extends ApiModelController
      * @param string $discussionId
      * @return array|null
      */
-    public function getMessages(string $targetId) :? array
+    public function getMessages(string $discussionId) :? array
     {
-        $discussion = $this->getDiscussion($targetId);
+        $discussion = $this->getDiscussion($discussionId);
 
         /**
          * Fetch Messages
          */
         $max_date = Discussion::getTime();
 
-        $messages = [];
-        foreach (Message::find([
-            'discussion_id = :discussion_id: AND created_at > :max_date:',
+        $messages = Message::find([
+            'discussion_id = :discussion_id: AND created_at < :max_date:',
             'bind' => [
                 'discussion_id' => $discussion->id,
                 'max_date'=> $max_date
             ],
             'order'=>'created_at DESC',
             'limit'=> 20
-        ]) as $message) {
-            $messages[] = $message->getArray(['user_id','content','file','meta_file','starred','status','created_at']);
+        ]);
+        
+        $rows = [];
+        foreach ($messages as $message) {
+            $rows[] = $message->getArray(['user_id','content','file','meta_file','starred','status','created_at']);
         }
 
         return [
-            'rows' => $messages
+            'rows' => $rows
         ];
     }
 
@@ -187,7 +189,7 @@ class DiscussionController extends ApiModelController
      * @param string $discussionId
      * @return object|null
      */
-    private function getDiscussion(string $discussionId) :? object
+    protected function getDiscussion(string $discussionId) :? object
     {
         $discussion = Discussion::userDiscussion($discussionId, $this->getUser()->id);
         

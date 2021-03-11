@@ -327,10 +327,45 @@ Authorization: Bearer {{authToken}}
 Content-Type: application/json
 
 
-
-
 ### todo inviteOneDiscussion
 ### todo updateOneDiscussion
 ### todo deleteOneDiscussion
 ### todo leaveOneDiscussion
 
+
+### -----------------------------------------------------------------------
+### -----------------------------------------------------------------------
+#
+#   Message User API
+#
+### -----------------------------------------------------------------------
+### -----------------------------------------------------------------------
+
+#------------------------------------------------------------
+###
+# @name sendMessage
+
+POST {{baseUrl}}/message/{{discussionid}} HTTP/1.1
+Authorization: Bearer {{authToken}}
+Content-Type: application/json
+
+{
+    "content":"wsup guys!"
+}
+
+#------------------------------------------------------------
+###
+# @name getMyMessages
+
+GET {{baseUrl}}/message/{{discussionid}} HTTP/1.1
+Authorization: Bearer {{authToken}}
+Content-Type: application/json
+
+#------------------------------------------------------------
+###
+# @name getOneMessage
+@Messageid = {{getMyMessages.response.body.$.rows[0].id}}
+
+GET {{baseUrl}}/message/{{discussionid}} HTTP/1.1
+Authorization: Bearer {{authToken}}
+Content-Type: application/json
