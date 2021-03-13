@@ -61,7 +61,7 @@ $config =  new Config([
         (((!empty($_SERVER['HTTPS']) && $_SERVER['HTTPS'] != 'off') || ($_SERVER['SERVER_PORT'] ?? null) == 443) ? "https://" : "http://")
         . ($_SERVER['HTTP_HOST'] ?? 'localhost') ,
         'timezone' => 'Europe/Paris',
-        'secretkey'=> $_ENV['JWT_SIGNER_KEY_BASE64BASE'] ?? "U0VDUkVU"
+        'secretkey'=> $_ENV['JWT_SIGNER_SECRET'] ?? "U0VDUkVU"
     ],
 
     'throttler' => [
