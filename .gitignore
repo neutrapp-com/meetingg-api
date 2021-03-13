@@ -1,24 +1,20 @@
-**/.DS_Store
-**/node_modules
-**/dist
+.phalcon
+*/node_modules
+.DS_Store
+Thumbs.db
+*.log
+.deploy*/
+src/_drafts
+dev/
+.env
+public/uploads/*
+vendor/
+!public/uploads/.gitkeep
+composer.lock
 
+**/build
+**/report
+**/.phpunit.result*
 
-# local env files
-**/.env.local
-**/.env.*.local
-
-# Log files
-**/npm-debug.log*
-**/yarn-debug.log*
-**/yarn-error.log*
-**/pnpm-debug.log*
-
-# Editor directories and files
-**/.idea
-**/.vscode
-**/*.suo
-**/*.ntvs*
-**/*.njsproj
-**/*.sln
-**/*.sw?
-**/dev
+public/temp/*
+!public/temp/.gitkeep
