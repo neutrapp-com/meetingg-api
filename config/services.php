@@ -10,7 +10,7 @@ use Phalcon\Storage\SerializerFactory;
 use Phalcon\Storage\Serializer\Json as JsonSerializer;
 
 use Lcobucci\JWT\Configuration;
-use Lcobucci\JWT\Signer\Hmac\Sha512;
+use Lcobucci\JWT\Signer\Hmac\Sha256;
 use Lcobucci\JWT\Signer\Key\InMemory;
 use Meetingg\Services\Throttler\CacheThrottler;
 
@@ -108,10 +108,10 @@ $di->setShared(
  * JWT Shared
  */
 $di->setShared('jwt', function () {
-    $secretKey = InMemory::base64Encoded($this->getConfig()->jwt->secretkey);
+    $secretKey = InMemory::plainText($this->getConfig()->jwt->secretkey);
     $config = Configuration::forSymmetricSigner(
         // You may use any HMAC variations (256, 384, and 512)
-        new Sha512(),
+        new Sha256(),
         // replace the value below with a key of your own!
         $secretKey
         // You may also override the JOSE encoder/decoder if needed by providing extra arguments here
