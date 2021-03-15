@@ -3,7 +3,7 @@ declare(strict_types=1);
 
 namespace Meetingg\Controllers\Geo;
 
-use Meetingg\Models\Country;
+use Meetingg\Library\Country;
 use Meetingg\Controllers\BaseController;
 
 /**
@@ -12,7 +12,6 @@ use Meetingg\Controllers\BaseController;
 class GeoController extends BaseController
 {
     const COUNTRY_COLUMNS = ['id','title'];
-
 
     public function onConstruct()
     {
@@ -26,12 +25,17 @@ class GeoController extends BaseController
      */
     public function countries() :? array
     {
+        $countries = [];
+     
+        foreach (Country::all() as $id => $country) {
+            $countries[] = [
+                'id'=>$id,
+                'title'=>$country['name']
+            ];
+        }
+     
         return ['data'=>
-            array_map(function ($item) {
-                return array_filter($item, function ($key) {
-                    return in_array($key, self::COUNTRY_COLUMNS);
-                }, ARRAY_FILTER_USE_KEY);
-            }, Country::find()->toArray(true))
+            $countries
         ];
     }
 }

@@ -12,7 +12,6 @@ use Phalcon\Validation\Validator\StringLength;
 use Phalcon\Validation\Validator\InclusionIn;
 
 use Lcobucci\JWT\Token;
-use Meetingg\Library\Country;
 use Meetingg\Models\Discussion\User as DiscussionUser;
 use Meetingg\Models\Meeting\User as MeetingUser;
 
@@ -78,18 +77,6 @@ class User extends BaseModel
      * @var string
      */
     public $address;
-
-    /**
-     *
-     * @var string
-     */
-    public $city;
-
-    /**
-     *
-     * @var string
-     */
-    public $country;
 
     /**
      *
@@ -271,35 +258,6 @@ class User extends BaseModel
                     'message' => 'The :field already used',
                 ]
             )
-        );
-
-        $validator->add(
-            'city',
-            new StringLength([
-                'max' => 30,
-                'min' => 2,
-                'messageMaximum' => 'The :field is too long',
-                'messageMinimum' => 'The :field is too short',
-                'allowEmpty' =>true
-            ])
-        );
-
-        $validator->add(
-            'city',
-            new Regex([
-                'pattern' => "/^[a-zA-Z]+(?:[\s-][a-zA-Z]+)*$/",
-                'message' => 'The :field is invalid',
-                'allowEmpty' =>true,
-            ])
-        );
-
- 
-        $validator->add(
-            'country',
-            new InclusionIn([
-                'domain' => Country::allKeys(),
-                'message' => 'Invalid country',
-            ])
         );
 
         return $this->validate($validator);
