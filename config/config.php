@@ -70,7 +70,12 @@ $config =  new Config([
         'bucket_size'  => intval($_ENV['RATE_LIMITING_BUCKET_SIZE'] ?? 30), // the number of allowed hits in the period of time of reference
         'refill_time'  => intval($_ENV['RATE_LIMITING_REFILL_TIME'] ?? 5), // the amount of time after that the counter will completely or partially reset (1m)
         'refill_amount'  => intval($_ENV['RATE_LIMITING_REFILL_AMOUNT'] ?? 10), // the number of hits to be reset every time the refill_time passes
-    ]
+    ],
+
+    // allow cors
+    'headers'=>[
+        'cors'=> $_ENV['CORS_ALLOWS'] ?? ''
+    ],
 ]);
 
 
