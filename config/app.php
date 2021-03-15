@@ -14,12 +14,15 @@ use Meetingg\Middleware\CacheMiddleware;
 use Meetingg\Middleware\RateLimitMiddleware;
 use Meetingg\Exception\PublicException;
 use Meetingg\Exception\Error\NotFound404;
+use Meetingg\Middleware\CorsMiddleware;
 
 /**
  * Before Execute
  * - Throttler
  */
 $eventsManager = new Manager();
+// Cors
+$eventsManager->attach('micro', new CorsMiddleware());
 // Rate Limiting
 $eventsManager->attach('micro', new RateLimitMiddleware());
 // Auth Middleware
@@ -67,6 +70,7 @@ $app->notFound(function () use ($app) {
  */
 $app->after(function () use ($app) {
     $content = $app->getReturnedValue();
+    $response = $app->response;
 
     if ($app->getDi()->has('minimized_content')) {
         $contentData = $content;
@@ -92,10 +96,10 @@ $app->after(function () use ($app) {
     /**
      * Dynamic Response Content & Type
      */
-    $app->response->setContentType('application/json');
-    $app->response->setJsonContent(array_merge_recursive(
+    $response->setContentType('application/json');
+    $response->setJsonContent(array_merge_recursive(
         [
-        'status' => $app->response->getStatusCode() ?: "ok",
+        'status' => $response->getStatusCode() ?: "ok",
         ],
         $content
     ));
@@ -103,12 +107,11 @@ $app->after(function () use ($app) {
     /**
      * End & Send Response
      */
-    $app->response->send();
+    $response->send();
 });
 
 // This is executed when the request has been served by the route handler and response has been returned
 $app->finish(function () use ($app) {
-
     //Finally, send the prepared response, flush output buffers (HTTP header)
     !$app->response->isSent() && $app->response->send();
 
@@ -122,9 +125,11 @@ $app->finish(function () use ($app) {
 $app->error(
     function ($e) use ($app) {
         $codeError = $e->getCode() ?: 401;
+        
+        $response = $app->response;
 
-        $app->response->setContentType('application/json');
-        $app->response->setJsonContent(
+        $response->setContentType('application/json');
+        $response->setJsonContent(
             array_merge(
                 $_ENV['APP_ENV'] === 'production' && (!is_subclass_of($e, PublicException::class, true) && get_class($e) !== PublicException::class) ? [
                     'code'    => $codeError,
@@ -146,16 +151,16 @@ $app->error(
          */
         if (property_exists(get_class($e), 'headers')) {
             foreach ($e->getHeaders() as $hname => $hvalue) {
-                $app->response->setHeader($hname, $hvalue);
+                $response->setHeader($hname, $hvalue);
             }
         }
         
         /**
          * Dynamic response messages
          */
-        $statusCode = StatusCodes::parseCode($app->response->getStatusCode() ?: $codeError);
-        $app->response->setStatusCode($statusCode, StatusCodes::getMessageForCode($statusCode));
-    
-        $app->response->send();
+        $statusCode = StatusCodes::parseCode($response->getStatusCode() ?: $codeError);
+        $response->setStatusCode($statusCode, StatusCodes::getMessageForCode($statusCode));
+        $response->setHeader('Access-Control-Allow-Origin', '*');
+        $response->send();
     }
 );

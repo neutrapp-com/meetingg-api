@@ -17,13 +17,11 @@
 @password = resttest123]
 @firstname = rest
 @lastname = test
-@country = MA
 
 @emailY = resttestY@demo.com
 @passwordY = resttest123]Y
 @firstnameY = restY
 @lastnameY = testY
-@countryY = FR
 
 @groupTitle = My X Group
 @contactTitle = Jhon X
@@ -42,7 +40,6 @@ Content-Type: application/json
     "email": "{{email}}",
     "password": "{{password}}",
     "cpassword": "{{password}}",
-    "country": "{{country}}",
     "agree": true
 }
 
@@ -58,7 +55,6 @@ Content-Type: application/json
     "email": "{{emailY}}",
     "password": "{{passwordY}}",
     "cpassword": "{{passwordY}}",
-    "country": "{{countryY}}",
     "agree": true
 }
 
@@ -70,6 +66,7 @@ Content-Type: application/json
 
 POST {{baseUrl}}/auth/login HTTP/1.1
 Content-Type: application/json
+Origin: http://localhost:8081
 
 {
     "email": "{{email}}",

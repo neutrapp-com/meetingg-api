@@ -35,28 +35,6 @@ class RegisterValidator extends BaseValidation
             ])
         );
 
-        
-            
-        $this->add(
-            'city',
-            new StringLength([
-                'max' => 30,
-                'min' => 2,
-                'messageMaximum' => 'The :field is too long',
-                'messageMinimum' => 'The :field is too short',
-                'allowEmpty' =>true
-            ])
-        );
-
-        $this->add(
-            'city',
-            new Regex([
-                'pattern' => "/^[a-zA-Z]+(?:[\s-][a-zA-Z]+)*$/",
-                'message' => 'The :field is invalid',
-                'allowEmpty' =>true,
-            ])
-        );
-        
         $this->add(
             'email',
             new PresenceOf(

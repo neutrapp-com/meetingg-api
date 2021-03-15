@@ -116,7 +116,6 @@ $di->setShared('jwt', function () {
         $secretKey
         // You may also override the JOSE encoder/decoder if needed by providing extra arguments here
     );
-
     return [
         'key'=> $secretKey,
         'config'=> $config // instnace Configuration::class ready to use

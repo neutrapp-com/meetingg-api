@@ -11,6 +11,7 @@ use Meetingg\Controllers\BaseController;
 use Meetingg\Http\StatusCodes;
 use Meetingg\Validators\RegisterValidator;
 use Lcobucci\JWT\Token;
+use Meetingg\Helpers\DateTimeFloatSerializer;
 
 /**
  *  Client Auth Controller
@@ -151,7 +152,8 @@ class AuthController extends BaseController
         $config = $this->getDI()->getShared('jwt')["config"];
         $now   = new DateTimeImmutable();
 
-        $generatedToken =  $config->builder()
+        $generatedToken =  $config
+            ->builder(new DateTimeFloatSerializer(DateTimeFloatSerializer::default()))
             // Configures the issuer (iss claim)
             ->issuedBy($appConfig->url)
             // Configures the audience (aud claim)
