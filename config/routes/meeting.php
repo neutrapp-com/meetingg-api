@@ -1,12 +1,12 @@
 <?php
 use Phalcon\Mvc\Micro\Collection;
-use Meetingg\Controllers\Discussion\DiscussionController;
+use Meetingg\Controllers\Meeting\MeetingController;
 
 $collection = new Collection();
 
-$collection->setHandler(DiscussionController::class, true);
+$collection->setHandler(MeetingController::class, true);
 
-$collection->setPrefix('/discussion');
+$collection->setPrefix('/meeting');
 
 $collection
 // getters
@@ -16,7 +16,7 @@ $collection
     ->get("/{id:".UUID_REGEX."}", "getOneRow")
     ->get("/{id:".UUID_REGEX."}/messages", "getMessages")
 // actions
-    ->post("/{id:".UUID_REGEX."}/new", "newMeeting")
+    ->post("/new", "newMeeting")
     ;
 
 

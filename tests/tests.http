@@ -366,3 +366,33 @@ Content-Type: application/json
 GET {{baseUrl}}/message/{{discussionid}} HTTP/1.1
 Authorization: Bearer {{authToken}}
 Content-Type: application/json
+
+
+
+### -----------------------------------------------------------------------
+### -----------------------------------------------------------------------
+#
+#   Meeting User API
+#
+### -----------------------------------------------------------------------
+### -----------------------------------------------------------------------
+
+
+
+#------------------------------------------------------------
+###
+# @name newMeeting
+
+POST {{baseUrl}}/meeting/new HTTP/1.1
+Authorization: Bearer {{authToken}}
+Content-Type: application/json
+
+
+
+{
+    "title":"wsup guys!",
+    "description":"wsup guys!",
+    "password":"wsup guys!",
+    "end_at":"wsup guys!",
+    "start_at":"wsup guys!",
+}
