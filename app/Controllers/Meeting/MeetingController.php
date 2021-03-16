@@ -59,59 +59,38 @@ class MeetingController extends ApiModelController
      * @param string uuid $targetId
      * @return array|null
      */
-    public function newMeeting(string $targetId) :? array
+    public function newMeeting() :? array
     {
-        $this->validUUIDOrThrowException($targetId);
-        
         $userId = $this->getUser()->id;
-        $dclass = Meeting::class;
-        $meeting = Meeting::query()
-            ->join(MeetingUser::class, "du.meeting_id = $dclass.id AND du.user_id = :user_id:", "du")
-            ->join(MeetingUser::class, "dtu.meeting_id = $dclass.id AND dtu.user_id = :target_id:", "dtu")
-            ->join(MeetingUser::class, "allu.meeting_id = $dclass.id", "allu")
-            ->bind(
-                [
-                    'user_id' => $targetId,
-                    'target_id' => $targetId,
-                ]
-            )
-            ->groupby("$dclass.id")
-            ->having("count($dclass.id) = 2")
-            ->execute();
+
+        $txManager   = new Manager();
+        $transaction = $txManager->get();
         
-        $meeting = $meeting->getFirst();
+        try {
+            $meeting = new Meeting();
+            $meeting->setTransaction($transaction);
+            $meeting->setActive(true);
 
-        if (true === is_null($meeting)) {
-            $txManager   = new Manager();
-            $transaction = $txManager->get();
-            
-            try {
-                $meeting = new Meeting();
-                $meeting->setTransaction($transaction);
-                $meeting->setActive(true);
-
-                if (false === $meeting->create()) {
-                    throw new \Exception("Meeting creating failed ! ");
-                }
-
-                foreach ([$userId, $targetId] as $uid) {
-                    $duser = new MeetingUser();
-                    $duser->setTransaction($transaction);
-                    $duser->user_id = $uid;
-                    $duser->meeting_id = $meeting->id;
-                    $duser->permissions = Permissions::READ_MESSAGES | Permissions::SEND_MESSAGES | Permissions::DROP_MESSAGES | Permissions::ADMINISTRATOR;
-                    $duser->setActive(true);
-
-                    if (false === $duser->create()) {
-                        throw new \Exception("Cannot add members to meeting");
-                    }
-                }
-
-                $transaction->commit();
-            } catch (\Throwable $e) {
-                $transaction->rollback();
-                throw new PublicException($e->getMessage(), StatusCodes::HTTP_BAD_GATEWAY);
+            if (false === $meeting->create()) {
+                throw new \Exception("Meeting creating failed ! ");
             }
+
+            foreach ([$userId] as $uid) {
+                $duser = new MeetingUser();
+                $duser->setTransaction($transaction);
+                $duser->user_id = $uid;
+                $duser->permissions = Permissions::READ_MESSAGES | Permissions::SEND_MESSAGES | Permissions::DROP_MESSAGES | Permissions::ADMINISTRATOR;
+                $duser->setActive(true);
+
+                if (false === $duser->create()) {
+                    throw new \Exception("Cannot add members to meeting");
+                }
+            }
+
+            $transaction->commit();
+        } catch (\Throwable $e) {
+            $transaction->rollback();
+            throw new PublicException($e->getMessage(), StatusCodes::HTTP_BAD_GATEWAY);
         }
 
         return [
