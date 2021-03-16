@@ -12,8 +12,8 @@ $collection->setPrefix('/profile');
 $collection
 // getters
     ->get("/", "index", "public")           // ok
-    ->get("/me", "myProfile")               // ok
-    ->get("/me/avatar", "getAvatar")        // ok
+    ->get("/my", "myProfile")               // ok
+    ->get("/my/avatar", "getAvatar")        // ok
     ->get("/{id:".UUID_REGEX."}", "userProfile")      // ok
 // actions
     ->post("/update", "updateProfile")      // ok
