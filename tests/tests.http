@@ -139,8 +139,8 @@ POST {{baseUrl}}/profile/search HTTP/1.1
 Authorization: Bearer {{authToken}}
 Content-Type: application/json
 
-{
-    "search":"remy"
+{ 
+    "search":"remy" 
 }
 
 ### -----------------------------------------------------------------------
