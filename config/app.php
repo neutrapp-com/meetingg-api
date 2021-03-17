@@ -44,7 +44,7 @@ $app->before(function () use ($app) {
         // inject params in the request
 
         foreach ($rawBody as $key => $value) {
-            $_REQUEST[$key] = $value;
+            $_REQUEST[$key] = is_array($value) ? json_encode($value) : $value;
         }
     }
 });
@@ -72,24 +72,24 @@ $app->after(function () use ($app) {
     $content = $app->getReturnedValue();
     $response = $app->response;
 
-    // if ($app->getDi()->has('minimized_content')) {
-    //     $contentData = $content;
+    if ($app->getDi()->has('minimized_content')) {
+        $contentData = $content;
         
-    //     $content = array_map(function ($arrayIndexed) {
-    //         if (is_array($arrayIndexed) && Functions::indexedArray($arrayIndexed) === true && count($arrayIndexed) > 0) {
-    //             $newArray = [
-    //                 'columns'=> array_keys($arrayIndexed[array_key_first($arrayIndexed)]),
-    //                 'rows'=> array_map(function ($row) {
-    //                     return array_values($row);
-    //                 }, $arrayIndexed)
-    //             ];
+        $content = array_map(function ($arrayIndexed) {
+            if (is_array($arrayIndexed) && Functions::indexedArray($arrayIndexed) === true && count($arrayIndexed) > 0) {
+                $newArray = [
+                    'columns'=> array_keys($arrayIndexed[array_key_first($arrayIndexed)]),
+                    'rows'=> array_map(function ($row) {
+                        return array_values($row);
+                    }, $arrayIndexed)
+                ];
 
-    //             return $newArray;
-    //         }
+                return $newArray;
+            }
 
-    //         return $arrayIndexed;
-    //     }, $contentData);
-    // }
+            return $arrayIndexed;
+        }, $contentData);
+    }
 
     $content = is_array($content) || is_object($content) ? $content : ['data' => $content];
 

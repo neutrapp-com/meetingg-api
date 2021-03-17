@@ -14,10 +14,11 @@ $collection
     ->get("/", "index", "public")           // ok
     ->get("/my", "myProfile")               // ok
     ->get("/my/avatar", "getAvatar")        // ok
+    ->get("/search", "searchUser")
     ->get("/{id:".UUID_REGEX."}", "userProfile")      // ok
 // actions
     ->post("/update", "updateProfile")      // ok
-    ->post("/avatar", "updateAvatar")       // #todo
+    ->post("/avatar", "updateAvatar")       // #todo_later
     ;
 
 

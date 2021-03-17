@@ -91,7 +91,7 @@ class ProfileController extends AuthentifiedController
         
         if (!$errors) {
             foreach ($user->getMessages() as $error) {
-                throw new PublicException($error->getMessage());
+                throw new PublicException($error->getMessage(), StatusCodes::HTTP_BAD_REQUEST);
             }
         }
 
@@ -137,6 +137,38 @@ class ProfileController extends AuthentifiedController
 
         return [
             'avatar' => $this->getUser()->avatar
+        ];
+    }
+
+    
+    /**
+     * Fetch User for contact invitation
+     *
+     * @return array|null
+     */
+    public function searchUser() :? array
+    {
+        $search = $this->request->get('search');
+        $search = (true === is_string($search)) ? explode(" ", $search) : [];
+
+        $bind = array_map(function ($text) {
+            return '%' . $text . '%';
+        }, $search);
+
+        $rows = User::find([
+            'firstname like ?0 OR lastname like ?0 OR email like ?0',
+            'bind'=> [ $bind[0] ],
+            'limit'=> 10,
+        ]);
+
+        $users = [];
+        foreach ($rows as $user) {
+            $users[] = $user->getProfile([], ['id','firstname','lastname','avatar'], true);
+        }
+
+        return [
+            'rows'=> $users,
+            'total' => count($users)
         ];
     }
 }

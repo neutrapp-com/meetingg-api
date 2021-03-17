@@ -328,6 +328,11 @@ class User extends BaseModel
                 $userData[$key] = $val;
             }
         }
+
+        /**
+         * Gavatar
+         */
+        $userData['avatar'] = !empty($userData['avatar']) ? $userData['avatar'] : 'https://www.gravatar.com/avatar/' . md5(strtolower($this->email));
         
         return $userData;
     }

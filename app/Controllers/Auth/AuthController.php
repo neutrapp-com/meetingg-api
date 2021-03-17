@@ -90,7 +90,8 @@ class AuthController extends BaseController
         }
 
         return [
-            'session' => array_merge($user->getProfile(), ['token'=> $user->getSessionToken()->toString()])
+            'profile' => $user->getProfile(),
+            'session' =>  ['token'=> $user->getSessionToken()->toString() ]
         ];
     }
 

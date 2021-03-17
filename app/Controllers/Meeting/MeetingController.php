@@ -6,14 +6,15 @@ namespace Meetingg\Controllers\Meeting;
 use Phalcon\Mvc\Model\Transaction\Manager;
 use Phalcon\Mvc\Model\Transaction\Failed;
 
-use Meetingg\Http\StatusCodes;
 use Meetingg\Models\Meeting;
-use Meetingg\Exception\PublicException;
-use Meetingg\Controllers\Auth\ApiModelController;
+use Meetingg\Http\StatusCodes;
+use Meetingg\Models\Discussion;
 use Meetingg\Library\Permissions;
-use Meetingg\Models\Meeting\User as MeetingUser;
-use Meetingg\Models\Message;
+use Meetingg\Exception\PublicException;
 use Meetingg\Validators\MeetingValidator;
+use Meetingg\Models\Meeting\User as MeetingUser;
+use Meetingg\Controllers\Auth\ApiModelController;
+use Meetingg\Models\Discussion\User as DiscussionUser;
 
 /**
  *  Landing Index Controller
@@ -67,16 +68,27 @@ class MeetingController extends ApiModelController
         $errors = $validator->validate($postData);
 
         foreach ($errors as $error) {
-            throw new PublicException($error->getMessage());
+            throw new PublicException($error->getMessage(), StatusCodes::HTTP_BAD_REQUEST);
         }
 
-
         $userId = $this->getUser()->id;
-
         $txManager   = new Manager();
         $transaction = $txManager->get();
+
+        /**
+         * Convert Dates
+         */
+        $postData['start_at'] = Meeting::formatTime($postData['start_at']);
+        $postData['end_at'] = Meeting::formatTime($postData['end_at']);
         
+        /**
+         * Transaction Insert Meeting & Users
+         */
         try {
+
+            /**
+             * Create Meeting
+             */
             $meeting = new Meeting();
             $meeting->setTransaction($transaction);
             $meeting->assign($postData, ['title', 'description', 'start_at', 'end_at']);
@@ -86,16 +98,60 @@ class MeetingController extends ApiModelController
                 throw new \Exception("Meeting creating failed ! ");
             }
 
-            foreach ([$userId] as $uid) {
-                $duser = new MeetingUser();
+            /**
+             * Create Discussion
+             */
+            $discussion = new Discussion();
+            $discussion->meeting_id = $meeting->id;
+            $discussion->title = $meeting->title;
+            $discussion->setActive(true);
+
+            if (false === $discussion->create()) {
+                throw new \Exception("Cannot add members to meeting");
+            }
+
+            /**
+             * Create Participants
+             */
+            
+            $userPermission = Permissions::READ_MESSAGES | Permissions::SEND_MESSAGES | Permissions::DROP_MESSAGES;
+            $adminPermission = Permissions::READ_MESSAGES | Permissions::SEND_MESSAGES | Permissions::DROP_MESSAGES | Permissions::ADMINISTRATOR;
+
+            $participants = [];
+
+            if (true === is_string($postData['participants'])) {
+                $participant_list = explode(",", $postData['participants']);
+            
+                foreach ($participant_list as $user_invite_id) {
+                    if (true === Meeting::validUUID($user_invite_id)) {
+                        $participants[$user_invite_id] = $userPermission;
+                    }
+                }
+            }
+
+            $participants[$userId] = $adminPermission;
+
+            foreach ($participants as $uid => $permissions) {
+                $muser = new MeetingUser();
+                $muser->setTransaction($transaction);
+                $muser->meeting_id = $meeting->id;
+                $muser->user_id = $uid;
+                $muser->permissions = $permissions;
+                $muser->setActive(true);
+
+                if (false === $muser->create()) {
+                    throw new \Exception("Cannot add members to meeting");
+                }
+
+                $duser = new DiscussionUser();
                 $duser->setTransaction($transaction);
+                $duser->discussion_id = $discussion->id;
                 $duser->user_id = $uid;
-                $duser->meeting_id = $meeting->id;
-                $duser->permissions = Permissions::READ_MESSAGES | Permissions::SEND_MESSAGES | Permissions::DROP_MESSAGES | Permissions::ADMINISTRATOR;
+                $duser->permissions = $permissions;
                 $duser->setActive(true);
 
                 if (false === $duser->create()) {
-                    throw new \Exception("Cannot add members to meeting");
+                    throw new \Exception("Cannot add members to meeting discussion");
                 }
             }
 
@@ -130,12 +186,71 @@ class MeetingController extends ApiModelController
      */
     public function getMyRows() :? array
     {
+        $this->di->setShared('minimized_content', true);
         $rows = [];
         foreach ($this->getUser()->getMeetings() as $meeting) {
             array_push($rows, $meeting->getProfile());
         }
         return [
-            'rows'=> $rows
+            'rows'=> $rows,
+            'total'=> count($rows)
+        ];
+    }
+
+    /**
+     * Get All Meeting Members
+     *
+     * @return array|null
+     */
+    public function getMembmers(string $meetingId) :? array
+    {
+        $this->di->setShared('minimized_content', true);
+        $rows = [];
+
+        $meeting = $this->getMeeting($meetingId) ?? [];
+        
+        foreach ($meeting->Users as $member) {
+            array_push($rows, $member->getProfile());
+        }
+        
+        return [
+            'rows'=> $rows,
+            'total'=> count($rows)
+        ];
+    }
+
+    /**
+     * Delete one meeting
+     *
+     * @eturn array|null
+     */
+    public function deleteOneRow(string $meetingId) :? array
+    {
+        $meeting = $this->getMeeting($meetingId) ?? [];
+        $user = $this->getUser();
+
+        $permissions =  0x0;
+        $users = $meeting->MeetingUsers ?? [];
+        foreach ($users as $duser) {
+            if ($duser->user_id == $user->id) {
+                $permissions = $duser->permissions;
+            }
+        }
+
+        if (!in_array(true, [
+            ($permissions & Permissions::ADMINISTRATOR) == Permissions::ADMINISTRATOR,
+        ])) {
+            throw new PublicException("You dont have permission to delete meeting", StatusCodes::HTTP_FORBIDDEN);
+        }
+        $errors = $meeting->delete();
+
+        if (count($errors) !== 0) {
+            throw new PublicException("Cannot delete this meeting", StatusCodes::HTTP_INTERNAL_SERVER_ERROR);
+        }
+
+
+        return [
+            'delete'=> true
         ];
     }
 

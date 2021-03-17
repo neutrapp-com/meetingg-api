@@ -2,6 +2,8 @@
 
 namespace Meetingg\Models;
 
+use Meetingg\Models\Meeting\User as MeetingUser;
+
 class Meeting extends BaseModel
 {
 
@@ -97,11 +99,24 @@ class Meeting extends BaseModel
         $this->setDefaultSchema();
         $this->setSource("meeting");
 
-        $this->hasMany('id', 'Meetingg\Models\Invite', 'meeting_id', ['alias' => 'Invite']);
-        $this->hasMany('id', 'Meetingg\Models\Discussion', 'meeting_id', ['alias' => 'Discussion']);
-        $this->hasMany('id', 'Meetingg\Models\Notification', 'meeting_id', ['alias' => 'Notification']);
+        $this->hasMany('id', 'Meetingg\Models\Invite', 'meeting_id', [ 'reusable' => true, 'alias' => 'Invite']);
+        $this->hasMany('id', 'Meetingg\Models\Discussion', 'meeting_id', [ 'reusable' => true, 'alias' => 'Discussion']);
+        $this->hasMany('id', 'Meetingg\Models\Notification', 'meeting_id', [ 'reusable' => true, 'alias' => 'Notification']);
+        $this->hasMany('id', MeetingUser::class, 'meeting_id', [ 'reusable' => true, 'alias' => 'MeetingUsers']);
 
-        $this->hasMany('id', 'Meetingg\Models\Meeting\User', 'meeting_id', ['alias' => 'MeetingUsers']);
+
+        $this->hasManyToMany(
+            'id',
+            MeetingUser::class,
+            'meeting_id',
+            'user_id',
+            User::class,
+            'id',
+            [
+                'reusable' => true,
+                'alias'=> 'Users'
+            ]
+        );
     }
 
 
@@ -112,10 +127,17 @@ class Meeting extends BaseModel
      */
     public function getProfile() : array
     {
-        $profile = [
-            'users' => []
-        ];
+        $profile = [];
 
+        /**
+         * Self toArray
+         */
+        foreach (['id', 'title' , 'description', 'audio','video','sharedscreen','start_at','end_at','created_at','updated_at'] as $key) {
+            $profile[$key] = $this->$key;
+        }
+
+        $profile['users'] = [];
+        
         /**
          * Users toArray
          */
@@ -123,23 +145,16 @@ class Meeting extends BaseModel
             array_push($profile['users'], $user->getProfile([], ['id','firstname','lastname','avatar'], true));
         }
         
-        /**
-         * Self toArray
-         */
-        foreach (['id', 'title' ,'avatar' , 'color','created_at','updated_at'] as $key) {
-            $profile[$key] = $this->$key;
-        }
-
         return $profile;
     }
 
- /**
-     * Get Meeting & User
-     *
-     * @param string $meetingId
-     * @param string $userId
-     * @return self|null
-     */
+    /**
+        * Get Meeting & User
+        *
+        * @param string $meetingId
+        * @param string $userId
+        * @return self|null
+        */
     public static function userMeeting(string $meetingId, string $userId) :? self
     {
         if (false === self::validUUID($meetingId)) {
@@ -158,5 +173,4 @@ class Meeting extends BaseModel
             ->execute()
             ->getFirst();
     }
-
 }

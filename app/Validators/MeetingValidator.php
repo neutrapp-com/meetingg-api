@@ -8,7 +8,7 @@ namespace Meetingg\Validators;
 use Phalcon\Validation\Validator\Between;
 use Phalcon\Validation\Validator\CallBack;
 use Phalcon\Validation\Validator\PresenceOf;
-use Phalcon\Validation\Validator\InclusionIn;
+use Phalcon\Validation\Validator\Regex;
 use Phalcon\Validation\Validator\StringLength;
 
 class MeetingValidator extends BaseValidation
@@ -35,16 +35,7 @@ class MeetingValidator extends BaseValidation
                 ]
             )
         );
-        
-        $this->add(
-            'description',
-            new PresenceOf(
-                [
-                    'message' => 'The :field is required',
-                ]
-            )
-        );
-        
+         
         $this->add(
             'description',
             new StringLength(
@@ -52,6 +43,7 @@ class MeetingValidator extends BaseValidation
                     'max' => 2000,
                     'min' => 0,
                     'messageMaximum' => 'The :field is too long',
+                    'allowEmpty'=> true
                 ]
             )
         );
@@ -60,33 +52,33 @@ class MeetingValidator extends BaseValidation
             'start_at',
             new PresenceOf(
                 [
-                    'message' => 'The :field is required',
+                    'message' => 'The Start date is required',
+                ]
+            )
+        );
+
+        $this->add(
+            'end_at',
+            new PresenceOf(
+                [
+                    'message' => 'The End date is required',
                 ]
             )
         );
         
         $this->add(
-            'start_at', 
+            'start_at',
             new Between(
                 [
                     'minimum' => time() ,
                     'maximum' => time() + (10000 * 24 * 60 * 60),
-                    'message' => 'The :field must be minimum after now',
+                    'message' => 'The Start Date must be minimum after now',
                 ]
             )
         );
         
         $this->add(
             ['end_at', 'start_at'],
-            new PresenceOf(
-                [
-                    'message' => 'The date are required',
-                ]
-            )
-        );
-        
-        $this->add(
-            ['end_at', 'start_at'], 
             new Between(
                 [
                     'minimum' => time() ,
@@ -97,14 +89,24 @@ class MeetingValidator extends BaseValidation
         );
 
         $this->add(
-            'end_at', new Callback(
+            ['end_at' , 'start_at'],
+            new Callback(
                 [
                     'message' => 'The end date must be after start date',
                     'callback' => function ($data) {
-                        return $data['end_at'] > $data['start_at'];
+                        return !empty($data['end_at'])  && !empty($data['start_at']) && $data['end_at'] > $data['start_at'];
                     }
                 ]
             )
+        );
+
+        $this->add(
+            'participants',
+            new Regex([
+                'pattern' => "/^([0-9a-z]{8}-[0-9a-z]{4}-[0-9a-z]{4}-[0-9a-z]{4}-[0-9a-z]{12})+(?:,([0-9a-z]{8}-[0-9a-z]{4}-[0-9a-z]{4}-[0-9a-z]{4}-[0-9a-z]{12})+)*$/",
+                'message' => 'The :field list is invalid',
+                'allowEmpty' => true
+            ])
         );
     }
 }

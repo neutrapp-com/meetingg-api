@@ -14,9 +14,10 @@ $collection
 
     ->get("/my", "getMyRows")
     ->get("/{id:".UUID_REGEX."}", "getOneRow")
-    ->get("/{id:".UUID_REGEX."}/messages", "getMessages")
+    ->get("/{id:".UUID_REGEX."}/members", "getMembmers")
 // actions
     ->post("/new", "newMeeting")
+    ->post("/{id:".UUID_REGEX."}/delete", "deleteOneRow")
     ;
 
 
