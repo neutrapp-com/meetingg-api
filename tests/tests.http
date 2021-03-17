@@ -23,6 +23,11 @@
 @firstnameY = restY
 @lastnameY = testY
 
+@emailZ = resttestZ@demo.com
+@passwordZ = resttest123]Z
+@firstnameZ = restZ
+@lastnameZ = testZ
+
 @groupTitle = My X Group
 @contactTitle = Jhon X
 
@@ -59,10 +64,25 @@ Content-Type: application/json
 }
 
 #------------------------------------------------------------
+### 
+# @name RegisterZ
+POST {{baseUrl}}/auth/register HTTP/1.1
+Content-Type: application/json
+
+{
+    "firstname":"{{firstnameZ}}",
+    "lastname":"{{lastnameZ}}",
+    "email": "{{emailZ}}",
+    "password": "{{passwordZ}}",
+    "cpassword": "{{passwordZ}}",
+    "agree": true
+}
+
+#------------------------------------------------------------
 ###
 # @name Login
 @authToken = {{Login.response.body.$.session.token}}
-@userId = {{Login.response.body.$.session.id}}
+@userId = {{Login.response.body.$.session.profile.id}}
 
 POST {{baseUrl}}/auth/login HTTP/1.1
 Content-Type: application/json
@@ -77,7 +97,7 @@ Origin: http://localhost:8081
 ###
 # @name LoginY
 @authTokenY = {{LoginY.response.body.$.session.token}}
-@userIdY = {{LoginY.response.body.$.session.id}}
+@userIdY = {{LoginY.response.body.$.session.profile.id}}
 
 POST {{baseUrl}}/auth/login HTTP/1.1
 Content-Type: application/json
@@ -89,8 +109,22 @@ Content-Type: application/json
 
 #------------------------------------------------------------
 ###
+# @name LoginZ
+@authTokenZ = {{LoginZ.response.body.$.session.token}}
+@userIdZ = {{LoginZ.response.body.$.session.profile.id}}
+
+POST {{baseUrl}}/auth/login HTTP/1.1
+Content-Type: application/json
+
+{
+    "email": "{{emailZ}}",
+    "password": "{{passwordZ}}"
+}
+
+#------------------------------------------------------------
+###
 # @name myProfile
-@profile = {{LoginY.response.body.$.session.id}}
+@profile = {{LoginY.response.body.$.session.profile.id}}
 
 GET {{baseUrl}}/profile/my HTTP/1.1
 Authorization: Bearer {{authToken}}
