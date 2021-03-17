@@ -60,6 +60,7 @@ class AuthController extends BaseController
         // return new JWT Token
         $token = $this->generateJWTSessionToken($user, $remember ? self::TOKEN_EXPIRE_TIME : self::TOKEN_EXPIRE_TIME_REMEMBER, $remember ? [self::REMEMBER_CLAIM => 1] : [])->toString();
         return [
+            'profile' => $user->getProfile(),
             'session' => ['token'=> $token]
         ];
     }
@@ -89,7 +90,8 @@ class AuthController extends BaseController
         }
 
         return [
-            'session' => array_merge($user->getProfile(), ['token'=> $user->getSessionToken()->toString()])
+            'profile' => $user->getProfile(),
+            'session' =>  ['token'=> $user->getSessionToken()->toString() ]
         ];
     }
 

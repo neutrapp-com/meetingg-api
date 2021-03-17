@@ -140,11 +140,9 @@ class Contact extends BaseModel
      */
     public function getProfile() : array
     {
-        $profile = [
-            'user' => $this->User->getProfile([], ['firstname','lastname','avatar'], true)
-        ];
+        $profile =  $this->User->getProfile([], ['id','firstname','lastname','avatar','email','phone','fax','city'], true) ?? [];
 
-        foreach (['target_id', 'title','stared','blocked','blocked_at','created_at','updated_at'] as $key) {
+        foreach (['title','stared','blocked','blocked_at','created_at','updated_at'] as $key) {
             $profile[$key] = $this->$key;
         }
 

@@ -133,11 +133,12 @@ class ContactController extends ApiModelController
      */
     public function getMyRows() :? array
     {
+        $this->di->setShared('minimized_content', true);
         $rows = parent::getMy();
         $items = [];
 
-        foreach ($rows as $row) {
-            array_push($items, $row->getProfile());
+        foreach ($rows as $contact) {
+            array_push($items, $contact->getProfile());
         }
 
         return [

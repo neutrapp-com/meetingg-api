@@ -155,11 +155,20 @@ class BaseModel extends Model implements SharedConstInterface
     }
 
     /**
-     * Get Time in seconds
+     * Get Time in fomrat
      */
     public static function getTime() :? string
     {
+        return self::formatTime(time());
+    }
+
+    /**
+     * Get Date Format by seconds
+     */
+    public static function formatTime(int $seconds) :? string
+    {
         $date = new DateTime('now');
+        $date->setTimestamp($seconds);
 
         return substr($date->format('Y-m-d H:i:s.u'), 0, 22);
     }

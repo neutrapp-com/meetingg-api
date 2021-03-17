@@ -139,12 +139,14 @@ class DiscussionController extends ApiModelController
      */
     public function getMyRows() :? array
     {
+        $this->di->setShared('minimized_content', true);
         $rows = [];
         foreach ($this->getUser()->getDiscussions() as $discussion) {
             array_push($rows, $discussion->getProfile());
         }
         return [
-            'rows'=> $rows
+            'rows'=> $rows,
+            'total'=> count($rows)
         ];
     }
 
@@ -158,6 +160,7 @@ class DiscussionController extends ApiModelController
     {
         $discussion = $this->getDiscussion($discussionId);
 
+        $this->di->setShared('minimized_content', true);
         /**
          * Fetch Messages
          */
@@ -179,7 +182,8 @@ class DiscussionController extends ApiModelController
         }
 
         return [
-            'rows' => $rows
+            'rows' => $rows,
+            'total'=> count($rows)
         ];
     }
 

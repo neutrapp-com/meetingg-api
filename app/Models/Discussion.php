@@ -97,10 +97,15 @@ class Discussion extends BaseModel
      */
     public function getProfile() : array
     {
-        $profile = [
-            'users' => []
-        ];
+        $profile = [];
+        /**
+         * Self toArray
+         */
+        foreach (['id', 'title' ,'avatar' , 'color','created_at','updated_at'] as $key) {
+            $profile[$key] = $this->$key;
+        }
 
+        $profile['users'] = [];
         /**
          * Users toArray
          */
@@ -108,12 +113,6 @@ class Discussion extends BaseModel
             array_push($profile['users'], $user->getProfile([], ['id','firstname','lastname','avatar'], true));
         }
         
-        /**
-         * Self toArray
-         */
-        foreach (['id', 'title' ,'avatar' , 'color','created_at','updated_at'] as $key) {
-            $profile[$key] = $this->$key;
-        }
 
         return $profile;
     }
