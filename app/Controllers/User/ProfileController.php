@@ -149,15 +149,22 @@ class ProfileController extends AuthentifiedController
     public function searchUser() :? array
     {
         $search = $this->request->get('search');
-        $search = (true === is_string($search)) ? explode(" ", $search) : [];
+        $search = array_filter((true === is_string($search)) ? explode(" ", $search) : [], function ($text) {
+            return strlen($text) > 0;
+        });
 
+        $conditions = [];
         $bind = array_map(function ($text) {
             return '%' . $text . '%';
         }, $search);
 
+        foreach ($bind as $index => $_v) {
+            $conditions[] = "firstname like ?$index OR lastname like ?$index OR email like ?$index";
+        }
+
         $rows = User::find([
-            'firstname like ?0 OR lastname like ?0 OR email like ?0',
-            'bind'=> [ $bind[0] ],
+            implode(" or ", $conditions),
+            'bind'=> $bind,
             'limit'=> 10,
         ]);
 
