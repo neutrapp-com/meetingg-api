@@ -118,7 +118,7 @@ class Discussion extends BaseModel
     }
 
     /**
-     * Get Discussion & User
+     * Get Discussion by id and user_id
      *
      * @param string $discussionId
      * @param string $userId
