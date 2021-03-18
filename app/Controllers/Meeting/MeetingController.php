@@ -71,10 +71,7 @@ class MeetingController extends ApiModelController
             throw new PublicException($error->getMessage(), StatusCodes::HTTP_BAD_REQUEST);
         }
 
-        $userId = $this->getUser()->id;
-        $txManager   = new Manager();
-        $transaction = $txManager->get();
-
+       
         /**
          * Convert Dates
          */
@@ -84,6 +81,12 @@ class MeetingController extends ApiModelController
         /**
          * Transaction Insert Meeting & Users
          */
+        
+        $userId = $this->getUser()->id;
+        $txManager   = new Manager();
+        $transaction = $txManager->get();
+
+        
         try {
 
             /**
@@ -242,10 +245,17 @@ class MeetingController extends ApiModelController
         ])) {
             throw new PublicException("You dont have permission to delete meeting", StatusCodes::HTTP_FORBIDDEN);
         }
-        $errors = $meeting->delete();
+        
+        try {
+            $meeting->getDiscussion()->delete();
 
-        if (count($errors) !== 0) {
-            throw new PublicException("Cannot delete this meeting", StatusCodes::HTTP_INTERNAL_SERVER_ERROR);
+            $deleted = $meeting->delete();
+        } catch (\Exception $e) {
+            throw new PublicException("Cannot delete this meeting !", StatusCodes::HTTP_INTERNAL_SERVER_ERROR, [], [$e->getMessage() , $e->getTrace()]);
+        }
+
+        if (false === $deleted) {
+            throw new PublicException("Cannot delete this meeting ", StatusCodes::HTTP_INTERNAL_SERVER_ERROR);
         }
 
 

@@ -2,6 +2,8 @@
 
 namespace Meetingg\Models;
 
+
+
 class Message extends BaseModel
 {
 
@@ -79,7 +81,23 @@ class Message extends BaseModel
         $this->setDefaultSchema();
         $this->setSource("message");
 
-        $this->belongsTo('user_id', 'Meetingg\Models\User', 'id', ['alias' => 'User']);
-        $this->belongsTo('discussion_id', 'Meetingg\Models\Discussion', 'id', ['alias' => 'Discussion']);
+        $this->belongsTo(
+            'user_id',
+            'Meetingg\Models\User',
+            'id',
+            [
+                'alias' => 'User',
+                
+            ]
+        );
+        $this->belongsTo(
+            'discussion_id',
+            'Meetingg\Models\Discussion',
+            'id',
+            [
+                'alias' => 'Discussion',
+                
+            ]
+        );
     }
 }

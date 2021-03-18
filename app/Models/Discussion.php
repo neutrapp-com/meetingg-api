@@ -3,6 +3,7 @@
 namespace Meetingg\Models;
 
 use Meetingg\Models\User;
+
 use Meetingg\Models\Discussion\User as DiscussionUser;
 
 class Discussion extends BaseModel
@@ -70,11 +71,43 @@ class Discussion extends BaseModel
         $this->setDefaultSchema();
         $this->setSource("discussion");
 
-        $this->belongsTo('meeting_id', 'Meetingg\Models\Meeting', 'id', ['alias' => 'Meeting']);
-        $this->hasMany('id', 'Meetingg\Models\Message', 'discussion_id', ['alias' => 'Message']);
+        $this->belongsTo(
+            'meeting_id',
+            'Meetingg\Models\Meeting',
+            'id',
+            [
+                'alias' => 'Meeting',
+                
+            ]
+        );
+        $this->hasMany(
+            'id',
+            'Meetingg\Models\Message',
+            'discussion_id',
+            [
+                'alias' => 'Messages',
+                
+            ]
+        );
 
-        $this->hasMany('id', 'Meetingg\Models\Notification', 'discussion_id', ['alias' => 'Notification']);
-        $this->hasMany('id', 'Meetingg\Models\Discussion\User', 'discussion_id', ['alias' => 'DiscussionUsers']);
+        $this->hasMany(
+            'id',
+            'Meetingg\Models\Notification',
+            'discussion_id',
+            [
+                'alias' => 'Notifications',
+                
+            ]
+        );
+        $this->hasMany(
+            'id',
+            'Meetingg\Models\Discussion\User',
+            'discussion_id',
+            [
+                'alias' => 'DiscussionUsers',
+                
+            ]
+        );
 
         $this->hasManyToMany(
             'id',
@@ -85,7 +118,8 @@ class Discussion extends BaseModel
             'id',
             [
                 'reusable' => true,
-                'alias'=> 'Users'
+                'alias'=> 'Users',
+                
             ]
         );
     }
@@ -141,5 +175,15 @@ class Discussion extends BaseModel
             )
             ->execute()
             ->getFirst();
+    }
+
+
+    public function beforeDelete(): void
+    {
+        parent::beforeDelete();
+
+        $this->modelsManager->createQuery('DELETE FROM '. Message::class.' WHERE discussion_id = :id:')->execute(['id'=> $this->id]);
+        $this->modelsManager->createQuery('DELETE FROM '. DiscussionUser::class.' WHERE discussion_id = :id:')->execute(['id'=> $this->id]);
+        $this->modelsManager->createQuery('DELETE FROM '. Notification::class.' WHERE discussion_id = :id:')->execute(['id'=> $this->id]);
     }
 }
