@@ -2,8 +2,6 @@
 
 namespace Meetingg\Models;
 
-
-
 use Meetingg\Models\Meeting\User as MeetingUser;
 
 class Meeting extends BaseModel
@@ -110,7 +108,7 @@ class Meeting extends BaseModel
                 'alias' => 'Invite',
             ]
         );
-        $this->hasMany(
+        $this->hasOne(
             'id',
             'Meetingg\Models\Discussion',
             'meeting_id',
@@ -180,6 +178,8 @@ class Meeting extends BaseModel
         foreach ($this->Users ?: [] as $user) {
             array_push($profile['users'], $user->getProfile([], ['id','firstname','lastname','avatar'], true));
         }
+
+        $profile['discussion'] = $this->Discussion->toArray() ?? ['id'=> null];
         
         return $profile;
     }
