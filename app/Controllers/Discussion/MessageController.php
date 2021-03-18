@@ -36,6 +36,9 @@ class MessageController extends DiscussionController
   
     /** @var MODEL */
     const MODEL = Message::class;
+
+    /** @var ROWS_LIMIT */
+    const ROWS_LIMIT = 20;
   
     /**
      * Foreign Keys
@@ -61,7 +64,9 @@ class MessageController extends DiscussionController
               'user_id = :user_id:',
               'bind'=>  [
                   'user_id'=> $this->getUser()->id
-              ]
+              ],
+              'order'=>'created_at DESC',
+              'limit'=> self::ROWS_LIMIT
           ];
     }
 

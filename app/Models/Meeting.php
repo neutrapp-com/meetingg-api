@@ -135,6 +135,7 @@ class Meeting extends BaseModel
         foreach (['id', 'title' , 'description', 'audio','video','sharedscreen','start_at','end_at','created_at','updated_at'] as $key) {
             $profile[$key] = $this->$key;
         }
+        $profile['timeleft'] =  strtotime($this->start_at) - time();
 
         $profile['users'] = [];
         
